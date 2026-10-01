@@ -1,0 +1,15 @@
+# Rime dictionary
+# encoding: utf-8
+#
+# Taiwan extension for Rime Ice.
+# Keep the upstream dictionary untouched, then add Taiwan-preferred terms.
+
+---
+name: rime_ice_tw
+version: "2026-10-01"
+sort: by_weight
+use_preset_vocabulary: false
+import_tables:
+  - rime_ice
+  - cn_dicts/tw_phrases
+...

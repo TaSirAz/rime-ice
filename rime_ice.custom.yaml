@@ -1,0 +1,17 @@
+# Rime Ice Taiwan customization
+
+patch:
+  # Use the extended dictionary while keeping the existing Rime Ice user DB
+  # so learned frequencies continue to live in rime_ice.userdb.
+  "translator/dictionary": rime_ice_tw
+  "translator/user_dict": rime_ice
+
+  # Keep reverse-lookup pronunciation aligned with the extended dictionary.
+  "radical_reverse_lookup/dictionary": rime_ice_tw
+
+  # Convert character forms to Taiwan Traditional only.
+  # Do NOT do phrase conversion such as 鼠標 -> 滑鼠.
+  "traditionalize/opencc_config": s2tw.json
+
+  # Traditional Chinese on by default.
+  "switches/@2/reset": 1

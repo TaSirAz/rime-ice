@@ -12,6 +12,9 @@ install_files: >-
   build/.gitkeep
   lua/cold_word_drop/*.*
   default.yaml
+  rime_ice_tw.dict.yaml
+  rime_ice.custom.yaml
+  default.custom.yaml
   squirrel.yaml
   weasel.yaml
   rime_ice.schema.yaml

@@ -1,0 +1,8 @@
+# Rime custom settings
+# Personal defaults for TaSirAz/rime-ice.
+
+patch:
+  "menu/page_size": 9
+
+  schema_list:
+    - schema: rime_ice

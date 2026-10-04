@@ -6,3 +6,11 @@ patch:
 
   schema_list:
     - schema: rime_ice
+
+  # Append shortcuts while preserving upstream paging and mode bindings.
+  "key_binder/bindings/+":
+    - { when: always, accept: Shift+space, toggle: full_shape }
+    - { when: always, accept: Control+Shift+5, toggle: full_shape }
+    - { when: always, accept: Control+Shift+percent, toggle: full_shape }
+    - { when: always, accept: Control+Shift+2, toggle: ascii_mode }
+    - { when: always, accept: Control+Shift+at, toggle: ascii_mode }

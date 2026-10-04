@@ -1,827 +1,825 @@
 # Rime dictionary
 # encoding: utf-8
-#
-# Generated from OpenCC data/dictionary/TWPhrases.txt.
+# Generated from OpenCC data/dictionary/TWPhrases.txt (Apache-2.0).
 # Source: https://github.com/BYVoid/OpenCC
-# Source license: Apache-2.0
-#
-# These are Taiwan-preferred terms as independent Rime entries.
-# The source (Mainland/HK-style) terms are intentionally NOT removed or rewritten.
+# Explicit pinyin generated with pypinyin; Taiwan overrides are in the script.
+# Original terms are preserved in the upstream dictionaries.
 
 ---
 name: tw_phrases
-version: "2026-10-01"
+version: "2026-10-04"
 sort: by_weight
 use_preset_vocabulary: false
+columns: [text, code, weight]
 ...
 
-超音波
-PN接面
-SQL隱碼攻擊
-隨身碟
-叮叮噹
-叮叮噹噹
-D型肝炎
-叮噹
-D肝
-三極體
-下拉式清單
-C型肝炎
-丙胺酸
-C肝
-平行計算
-中介軟體
-序列埠
-序列
-丹尼·鮑伊
-主開機記錄
-主機板
-查德
-B型肝炎
-B肝
-葉門
-戴奧辛
-二極體
-網際網路
-阿利安卓·崗札雷·伊納利圖
-互動
-互動式
-韓德爾
-白胺酸
-亮胺酸
-人工智慧
-史他汀類
-快捷半導體
-程式碼
-代碼
-內碼表
-代謝症候群
-乙太網路
-乙太網
-乙太網路路由器
-乙太網路由器
-工作列
-工作管理員
-模擬
-伊力·卡山
-伊利諾
-伊利諾州
-波克夏海瑟威
-波克夏海瑟威公司
-貝里斯
-點陣圖
-低階
-低級
-喬治亞
-喬治亞州
-維德角
-行動式
-攜帶型
-奧克拉荷馬
-奧克拉荷馬城
-奧克拉荷馬州
-奧克拉荷馬市
-奧勒岡
-奧勒岡州
-儲存
-保羅·海吉斯
-訊雜比
-資訊
-資訊安全
-資訊科技
-資訊理論
-訊號
-信號
-通道
-簽帳金融卡
-傅立葉
-感測
-畫素
-虛擬碼
-優先順序
-最佳化
-後設資料
-超程式設計
-母音
-游標
-光碟
-光碟機
-克萊門第
-克林·伊斯威特
-克羅埃西亞
-克里斯多福·諾蘭
-擴音
-記憶體
-記憶體模組
-核心
-內建
-行內函數
-全域性
-全形
-西元
-公元紀年
-相容
-氣泡排序
-冰棒
-凱吉
-凱文·科斯納
-凱薩琳·畢格羅
-計程車
-函式
-函數語言程式設計
-刀鋒伺服器
-分散式
-分割槽
-解析度
-列支敦斯登
-賴比瑞亞
-利蓋悌
-重新整理
-燒錄
-攝護腺
-字首
-剪下
-剪貼簿
-建立
-迦納
-加彭
-載入
-布拉姆斯
-荀白克
-北卡羅萊納
-北卡羅萊納州
-北馬利安納
-北馬利安納群島
-半形
-南卡羅萊納
-南卡羅萊納州
-波凱里尼
-部落格
-波札那
-卡達
-瓜地馬拉
-解除安裝
-厄瓜多
-厄利垂亞
-原始碼
-引數
-參數列
-顧爾德
-控制代碼
-執行檔
-視覺化
-史提夫·麥昆
-司法程序
-吉勒摩·戴托羅
-吉布地
-撥出
-來電轉接
-指令式程式設計
-命令列
-名稱空間
-名字空間
-咖哩
-雜湊
-哈薩克
-哥斯大黎加
-唐氏症
-喬治·克隆尼
-微控制器
-回撥
-韌體
-影像
-相簿
-圖示
-吐瓦魯
-妥瑞氏症
-妥瑞症
-土庫曼
-線上
-蓋亞那
-地址
-位址
-位址列
-坦尚尼亞
-艾克森美孚
-衣索比亞
-艾爾加
-都會網路
-吉里巴斯
-堆疊
-場效電晶體
-塑膠
-塔吉克
-獅子山
-塞普勒斯
-塞席爾
-桌布
-壁紙
-外接
-外部索引鍵
-多工
-過動症
-多囊性卵巢症候群
-多尼采第
-多型
-多明尼加
-多執行緒
-大數據
-福斯汽車
-福斯汽車集團
-福斯集團
-天冬胺酸
-天冬醯胺
-天門冬胺酸
-天門冬醯胺
-賓士
-奧利佛·史東
-歐巴馬
-奧福
-乳酪
-威廉·佛雷金
-威斯康辛
-威斯康辛州
-黃體素
-字型檔
-欄位
-字元
-字串
-字元集
-位元組
-字節跳動
-字型
-存檔
-自閉症
-安地卡及巴布達
-宏
-巨集
-單核心
-巨集函式
-巨集命令
-巨集定義
-巨集展開
-巨集指令
-巨集替換
-巨集程式設計
-巨集處理
-巨集語言
-巨集呼叫
-心室顫動
-暫存器
-密西根
-密西根州
-金鑰
-例項
-實例
-即時
-真實模式
-稽核
-防寫
-寬頻
-寶僑
-寶僑公司
-BMW集團
-定址
-對乙醯胺基酚
-乙醯胺酚
-對話方塊
-物件
-對象
-匯入
-匯出
-奈及利亞
-尼日
-區域網
-區域性
-螢幕
-遮蔽
-甘比亞
-巢狀
-巴貝多
-巴布亞紐幾內亞
-市場行銷
-布萊茲
-布吉納法索
-布萊德·彼特
-布林
-布瑞頓
-蒲隆地
-布列敦
-布列敦森林
-布列敦森林制度
-帛琉
-帕金森氏症
-巴金森氏症
-頻寬
-幾內亞比索
-機率
-庫欣氏症候群
-康乃狄克
-康乃狄克州
-載入程式
-維吉尼亞
-維吉尼亞州
-法蘭西絲·麥朵曼
-嬌生公司
-彙編
-組譯
-組譯器
-組合語言
-彩色超音波
-彼得·傑克森
-字尾
-迴圈
-循環
-德布西
-德弗札克
-心房撲動
-心房顫動
-心肌梗塞
-快閃記憶體
-急性呼吸窘迫症候群
-價效比
-效能
-義大利
-慢性疲勞症候群
-E型肝炎
-E肝
-戒斷症候群
-擷取
-截圖
-戴流士
-索羅門群島
-列印
-印表機
-開啟
-打開
-批次
-憂鬱症
-拉羅
-拉摩
-拉赫曼尼諾夫
-丟擲
-複製
-永續性
-指標
-摺積
-掃描器
-結束通話
-取樣
-取樣率
-介面
-控制元件
-外掛
-搜尋
-摩爾線程
-運算元
-運算子
-作業系統
-擴充套件
-副檔名
-支援
-支持者
-數字
-數位
-數位人文
-數位印刷
-數位電子
-數位電路
-資料
-數據
-資料倉儲
-資料包
-資料庫
-資料探勘
-資料來源
-陣列
-檔案
-檔名
-資料夾
-文書處理
-文件
-汶萊
-史克里亞賓
-史卡拉第
-史瓦濟蘭
-斯洛維尼亞
-史特拉汶斯基
-史麥塔納
-史蒂芬·史匹柏
-紐澤西
-紐澤西州
-新罕布夏
-新罕布夏州
-紐西蘭
-泡麵
-速食麵
-方程式
-史托克豪森
-史特勞斯
-對映
-分時多重進接
-分時多工
-時脈頻率
-普羅高菲夫
-閘流體
-電晶體
-智慧
-終端使用者
-有失真壓縮
-伺服器
-朗·霍華
-班·艾佛列克
-原生代碼
-解構函式
-解構子
-列舉
-白遼士
-查詢
-檢視
-蓋希文
-葛拉斯
-葛令卡
-格瑞那達
-葛利格
-喬治亞共和國
-桌上型
-梅爾·吉勃遜
-梅湘
-榴槤
-建構函式
-建構子
-識別符號
-模組
-類比
-類比電子
-類比電路
-許可權
-興德密特
-尤拉
-萊雅
-萊雅集團
-正規表示式
-正當程序
-正子
-正子斷層造影
-宕機
-防毒
-位元
-比特幣
-位元率
-茅利塔尼亞
-模里西斯
-胺基酸
-安比西林
-華倫·比提
-佛漢·威廉斯
-華爾頓
-沙烏地阿拉伯
-沙烏地阿美
-沙烏地阿美公司
-波長分波多工
-波士尼亞赫塞哥維納
-辛巴威
-宏都拉斯
-海內存知己
-海飛茲
-訊息
-消息
-冷盤
-新增
-原始檔
-溢位
-那杜
-捲軸
-簡報
-演算法
-漢他病毒
-潘德列茲基
-雷射
-啟用
-烏茲別克
-無失真壓縮
-實體記憶體
-實體地址
-德拉瓦
-德拉瓦州
-千里達及托巴哥
-狀態列
-後天免疫缺乏症候群
-普賽爾
-諾魯
-萬那杜
-華格納
-甘胺酸
-使用者
-使用者名稱
-A型肝炎
-甲硫胺酸
-A肝
-異白胺酸
-異亮胺酸
-非同步
-失智症
-登入
-釋出
-傳送
-白血球
-碟片
-磁碟機代號
-盧安達
-目的碼
-睡眠呼吸中止症
-向量
-智慧財產權
-簡訊
-砈
-矽
-硬體
-硬碟
-分碼多重進接
-位元速率
-磁碟
-磁軌
-社群
-社區
-停用
-佛瑞
-柯恩兄弟
-葛摩
-柯普蘭
-象牙海岸
-柯雷利
-行動數據
-行動硬碟
-行動網路
-行動通訊
-行動電話
-程式
-程序不正義
-程式設計師
-程序正義
-麩醯胺酸
-穀氨醯胺
-麩胺酸
-穀胺酸
-穆索斯基
-分空間多重進接
-空間多工
-空氣清淨機
-突尼西亞
-視窗
-埠
-筆記型電腦
-範式
-正規化
-珍·康萍
-米歇爾·哈札納維西斯
-貼上
-粘貼
-精胺酸
-約瑟夫·孟威茲
-傷心小棧
-紅血球
-奈米
-納米比亞
-索馬利亞
-元件
-組胺酸
-絲胺酸
-繫結
-綁架丁丁當
-經前症候群
-韋瓦第
-網路上的芳鄰
-網絡卡
-網咖
-網路
-閘道器
-執行緒
-程式設計
-程式語言
-快取
-縮圖
-縮排
-匯流排
-纈胺酸
-預設
-勞勃·懷斯
-勞勃·班頓
-羅勃·辛密克斯
-勞勃·瑞福
-羅德島
-羅德島州
-美屬維京群島
-老年失智症
-寮國
-寮人民民主共和國
-聖克里斯多福及尼維斯
-聖文森及格瑞那丁
-聖露西亞
-聖馬利諾
-聯絡
-通話記錄
-音效卡
-宣告
-西恩·貝克
-蕭士塔高維契
-蕭邦
-肯亞
-胰臟
-胱胺酸
-離線
-脯胺酸
-腎病症候群
-腕隧道症候群
-腦梗塞
-指令碼
-大腸激躁症
-自動旋轉螢幕
-腳踏車
-桌上型電腦
-台積公司
-台積電
-太空梭
-色胺酸
-愛荷華
-愛荷華州
-愛滋病
-愛滋病患
-愛滋病毒
-艾瑪·湯瑪斯
-晶片
-破圖
-苯丙胺酸
-輝達
-莫札特
-莫三比克
-選單
-菜單
-賴索托
-全球資訊網
-永珍
-提佩特
-薩拉沙泰
-薩提
-藍色畫面
-蘇胺酸
-蘇利南
-處理程序
-虛擬函式
-虛擬機器
-血紅素
-表示式
-運算式
-影印
-核取按鈕
-核取方塊
-西維吉尼亞
-西維吉尼亞州
-薛尼·波拉克
-西貝流士
-影片
-視訊
-視訊會議
-視訊通話
-直譯器
-觸控
-觸控式螢幕
-電腦保安
-電腦斷層
-電腦科學
-訪問
-存取
-裝置
-設定
-訴訟程序
-序號產生器
-登錄檔
-登出
-片語
-詹姆斯·卡麥隆
-排程
-呼叫
-調色盤
-調變
-數據機
-除錯
-偵錯
-偵錯程式
-諾蘭
-變數
-貝里尼
-貝南
-萊許
-離胺酸
-尚比亞
-高空彈跳
-軟體
-軟碟機
-軟體動物
-子音
-跳脫字元
-通訊
-通話卡
-萬用字元
-連線
-聯結器
-進位制
-程序
-進程
-行程
-執行
-程序式程式設計
-遞迴
-遠端
-介面卡
-麥克·尼可斯
-麥克·道格拉斯
-邏輯閘
-酪胺酸
-醯
-林姆斯基-高沙可夫
-重新命名
-重灌
-過載
-金氧半導體
-鍅
-鈽
-錄影
-鉳
-鎝
-鑀
-鋂
-錼
-連結
-連結串列
-映象
-鉲
-鎦
-孟德爾頌
-入口網站
-閘電路
-好市多
-好市多公司
-關聯式資料庫
-阻斷劑
-阿斯匹靈
-亞塞拜然
-阿拉伯聯合大公國
-阿斯特捷利康
-阿斯特捷利康公司
-阿茲海默氏症
-阿茲海默症
-阿莫西林
-安莫西林
-愛黛兒·羅曼斯基
-佇列
-楊納傑克
-整合
-積體電路
-叢集
-雲端儲存
-雲端計算
-雷諾氏症候群
-霍洛維茲
-物件導向
-程序導向
-韋本
-音訊
-頁首
-頁尾
-專案
-前處理器
-標頭檔案
-分頻多重進接
-分頻多工
-型別
-類别範本
-映象管
-顯示卡
-視訊記憶體
-飛航模式
-資訊長
-執行長
-技術長
-營運長
-夏農
-馬丁·史柯西斯
-馬凡氏症候群
-馬凡氏症
-馬爾地夫
-麻薩諸塞
-麻薩諸塞州
-馬利共和國
-高效能運算
-高畫質
-高階
-進階
-高級
-進階設定
-進階選項
-快取記憶體
-包羅定
-駭客
-預設值
-點選
-滑鼠
+超音波	chao yin bo	100
+PN接面	P N jie mian	100
+SQL隱碼攻擊	S Q L yin ma gong ji	100
+隨身碟	sui shen die	100
+叮叮噹	ding ding dang	100
+叮叮噹噹	ding ding dang dang	100
+D型肝炎	D xing gan yan	100
+叮噹	ding dang	100
+D肝	D gan	100
+三極體	san ji ti	100
+下拉式清單	xia la shi qing dan	100
+C型肝炎	C xing gan yan	100
+丙胺酸	bing an suan	100
+C肝	C gan	100
+平行計算	ping xing ji suan	100
+中介軟體	zhong jie ruan ti	100
+序列埠	xu lie bu	100
+序列	xu lie	100
+丹尼·鮑伊	dan ni bao yi	100
+主開機記錄	zhu kai ji ji lu	100
+主機板	zhu ji ban	100
+查德	cha de	100
+B型肝炎	B xing gan yan	100
+B肝	B gan	100
+葉門	ye men	100
+戴奧辛	dai ao xin	100
+二極體	er ji ti	100
+網際網路	wang ji wang lu	100
+阿利安卓·崗札雷·伊納利圖	a li an zhuo gang zha lei yi na li tu	100
+互動	hu dong	100
+互動式	hu dong shi	100
+韓德爾	han de er	100
+白胺酸	bai an suan	100
+亮胺酸	liang an suan	100
+人工智慧	ren gong zhi hui	100
+史他汀類	shi ta ting lei	100
+快捷半導體	kuai jie ban dao ti	100
+程式碼	cheng shi ma	100
+代碼	dai ma	100
+內碼表	nei ma biao	100
+代謝症候群	dai xie zheng hou qun	100
+乙太網路	yi tai wang lu	100
+乙太網	yi tai wang	100
+乙太網路路由器	yi tai wang lu lu you qi	100
+乙太網路由器	yi tai wang lu you qi	100
+工作列	gong zuo lie	100
+工作管理員	gong zuo guan li yuan	100
+模擬	mo ni	100
+伊力·卡山	yi li ka shan	100
+伊利諾	yi li nuo	100
+伊利諾州	yi li nuo zhou	100
+波克夏海瑟威	bo ke xia hai se wei	100
+波克夏海瑟威公司	bo ke xia hai se wei gong si	100
+貝里斯	bei li si	100
+點陣圖	dian zhen tu	100
+低階	di jie	100
+低級	di ji	100
+喬治亞	qiao zhi ya	100
+喬治亞州	qiao zhi ya zhou	100
+維德角	wei de jiao	100
+行動式	xing dong shi	100
+攜帶型	xie dai xing	100
+奧克拉荷馬	ao ke la he ma	100
+奧克拉荷馬城	ao ke la he ma cheng	100
+奧克拉荷馬州	ao ke la he ma zhou	100
+奧克拉荷馬市	ao ke la he ma shi	100
+奧勒岡	ao lei gang	100
+奧勒岡州	ao lei gang zhou	100
+儲存	chu cun	100
+保羅·海吉斯	bao luo hai ji si	100
+訊雜比	xun za bi	100
+資訊	zi xun	100
+資訊安全	zi xun an quan	100
+資訊科技	zi xun ke ji	100
+資訊理論	zi xun li lun	100
+訊號	xun hao	100
+信號	xin hao	100
+通道	tong dao	100
+簽帳金融卡	qian zhang jin rong ka	100
+傅立葉	fu li ye	100
+感測	gan ce	100
+畫素	hua su	100
+虛擬碼	xu ni ma	100
+優先順序	you xian shun xu	100
+最佳化	zui jia hua	100
+後設資料	hou she zi liao	100
+超程式設計	chao cheng shi she ji	100
+母音	mu yin	100
+游標	you biao	100
+光碟	guang die	100
+光碟機	guang die ji	100
+克萊門第	ke lai men di	100
+克林·伊斯威特	ke lin yi si wei te	100
+克羅埃西亞	ke luo ai xi ya	100
+克里斯多福·諾蘭	ke li si duo fu nuo lan	100
+擴音	kuo yin	100
+記憶體	ji yi ti	100
+記憶體模組	ji yi ti mo zu	100
+核心	he xin	100
+內建	nei jian	100
+行內函數	hang nei han shu	100
+全域性	quan yu xing	100
+全形	quan xing	100
+西元	xi yuan	100
+公元紀年	gong yuan ji nian	100
+相容	xiang rong	100
+氣泡排序	qi pao pai xu	100
+冰棒	bing bang	100
+凱吉	kai ji	100
+凱文·科斯納	kai wen ke si na	100
+凱薩琳·畢格羅	kai sa lin bi ge luo	100
+計程車	ji cheng che	100
+函式	han shi	100
+函數語言程式設計	han shu yu yan cheng shi she ji	100
+刀鋒伺服器	dao feng ci fu qi	100
+分散式	fen san shi	100
+分割槽	fen ge cao	100
+解析度	jie xi du	100
+列支敦斯登	lie zhi dun si deng	100
+賴比瑞亞	lai bi rui ya	100
+利蓋悌	li gai ti	100
+重新整理	chong xin zheng li	100
+燒錄	shao lu	100
+攝護腺	she hu xian	100
+字首	zi shou	100
+剪下	jian xia	100
+剪貼簿	jian tie bu	100
+建立	jian li	100
+迦納	jia na	100
+加彭	jia peng	100
+載入	zai ru	100
+布拉姆斯	bu la mu si	100
+荀白克	xun bai ke	100
+北卡羅萊納	bei ka luo lai na	100
+北卡羅萊納州	bei ka luo lai na zhou	100
+北馬利安納	bei ma li an na	100
+北馬利安納群島	bei ma li an na qun dao	100
+半形	ban xing	100
+南卡羅萊納	nan ka luo lai na	100
+南卡羅萊納州	nan ka luo lai na zhou	100
+波凱里尼	bo kai li ni	100
+部落格	bu luo ge	100
+波札那	bo zha na	100
+卡達	ka da	100
+瓜地馬拉	gua di ma la	100
+解除安裝	jie chu an zhuang	100
+厄瓜多	e gua duo	100
+厄利垂亞	e li chui ya	100
+原始碼	yuan shi ma	100
+引數	yin shu	100
+參數列	can shu lie	100
+顧爾德	gu er de	100
+控制代碼	kong zhi dai ma	100
+執行檔	zhi xing dang	100
+視覺化	shi jue hua	100
+史提夫·麥昆	shi ti fu mai kun	100
+司法程序	si fa cheng xu	100
+吉勒摩·戴托羅	ji lei mo dai tuo luo	100
+吉布地	ji bu di	100
+撥出	bo chu	100
+來電轉接	lai dian zhuan jie	100
+指令式程式設計	zhi ling shi cheng shi she ji	100
+命令列	ming ling lie	100
+名稱空間	ming cheng kong jian	100
+名字空間	ming zi kong jian	100
+咖哩	ka li	100
+雜湊	za cou	100
+哈薩克	ha sa ke	100
+哥斯大黎加	ge si da li jia	100
+唐氏症	tang shi zheng	100
+喬治·克隆尼	qiao zhi ke long ni	100
+微控制器	wei kong zhi qi	100
+回撥	hui bo	100
+韌體	ren ti	100
+影像	ying xiang	100
+相簿	xiang bu	100
+圖示	tu shi	100
+吐瓦魯	tu wa lu	100
+妥瑞氏症	tuo rui shi zheng	100
+妥瑞症	tuo rui zheng	100
+土庫曼	tu ku man	100
+線上	xian shang	100
+蓋亞那	gai ya na	100
+地址	di zhi	100
+位址	wei zhi	100
+位址列	wei zhi lie	100
+坦尚尼亞	tan shang ni ya	100
+艾克森美孚	ai ke sen mei fu	100
+衣索比亞	yi suo bi ya	100
+艾爾加	ai er jia	100
+都會網路	dou hui wang lu	100
+吉里巴斯	ji li ba si	100
+堆疊	dui die	100
+場效電晶體	chang xiao dian jing ti	100
+塑膠	su jiao	100
+塔吉克	ta ji ke	100
+獅子山	shi zi shan	100
+塞普勒斯	sai pu lei si	100
+塞席爾	sai xi er	100
+桌布	zhuo bu	100
+壁紙	bi zhi	100
+外接	wai jie	100
+外部索引鍵	wai bu suo yin jian	100
+多工	duo gong	100
+過動症	guo dong zheng	100
+多囊性卵巢症候群	duo nang xing luan chao zheng hou qun	100
+多尼采第	duo ni cai di	100
+多型	duo xing	100
+多明尼加	duo ming ni jia	100
+多執行緒	duo zhi xing xu	100
+大數據	da shu ju	100
+福斯汽車	fu si qi che	100
+福斯汽車集團	fu si qi che ji tuan	100
+福斯集團	fu si ji tuan	100
+天冬胺酸	tian dong an suan	100
+天冬醯胺	tian dong xi an	100
+天門冬胺酸	tian men dong an suan	100
+天門冬醯胺	tian men dong xi an	100
+賓士	bin shi	100
+奧利佛·史東	ao li fu shi dong	100
+歐巴馬	ou ba ma	100
+奧福	ao fu	100
+乳酪	ru lao	100
+威廉·佛雷金	wei lian fu lei jin	100
+威斯康辛	wei si kang xin	100
+威斯康辛州	wei si kang xin zhou	100
+黃體素	huang ti su	100
+字型檔	zi xing dang	100
+欄位	lan wei	100
+字元	zi yuan	100
+字串	zi chuan	100
+字元集	zi yuan ji	100
+位元組	wei yuan zu	100
+字節跳動	zi jie tiao dong	100
+字型	zi xing	100
+存檔	cun dang	100
+自閉症	zi bi zheng	100
+安地卡及巴布達	an di ka ji ba bu da	100
+宏	hong	100
+巨集	ju ji	100
+單核心	dan he xin	100
+巨集函式	ju ji han shi	100
+巨集命令	ju ji ming ling	100
+巨集定義	ju ji ding yi	100
+巨集展開	ju ji zhan kai	100
+巨集指令	ju ji zhi ling	100
+巨集替換	ju ji ti huan	100
+巨集程式設計	ju ji cheng shi she ji	100
+巨集處理	ju ji chu li	100
+巨集語言	ju ji yu yan	100
+巨集呼叫	ju ji hu jiao	100
+心室顫動	xin shi chan dong	100
+暫存器	zan cun qi	100
+密西根	mi xi gen	100
+密西根州	mi xi gen zhou	100
+金鑰	jin yao	100
+例項	li xiang	100
+實例	shi li	100
+即時	ji shi	100
+真實模式	zhen shi mo shi	100
+稽核	ji he	100
+防寫	fang xie	100
+寬頻	kuan pin	100
+寶僑	bao qiao	100
+寶僑公司	bao qiao gong si	100
+BMW集團	B M W ji tuan	100
+定址	ding zhi	100
+對乙醯胺基酚	dui yi xi an ji fen	100
+乙醯胺酚	yi xi an fen	100
+對話方塊	dui hua fang kuai	100
+物件	wu jian	100
+對象	dui xiang	100
+匯入	hui ru	100
+匯出	hui chu	100
+奈及利亞	nai ji li ya	100
+尼日	ni ri	100
+區域網	qu yu wang	100
+區域性	qu yu xing	100
+螢幕	ying mu	100
+遮蔽	zhe bi	100
+甘比亞	gan bi ya	100
+巢狀	chao zhuang	100
+巴貝多	ba bei duo	100
+巴布亞紐幾內亞	ba bu ya niu ji nei ya	100
+市場行銷	shi chang xing xiao	100
+布萊茲	bu lai zi	100
+布吉納法索	bu ji na fa suo	100
+布萊德·彼特	bu lai de bi te	100
+布林	bu lin	100
+布瑞頓	bu rui dun	100
+蒲隆地	pu long di	100
+布列敦	bu lie dun	100
+布列敦森林	bu lie dun sen lin	100
+布列敦森林制度	bu lie dun sen lin zhi du	100
+帛琉	bo liu	100
+帕金森氏症	pa jin sen shi zheng	100
+巴金森氏症	ba jin sen shi zheng	100
+頻寬	pin kuan	100
+幾內亞比索	ji nei ya bi suo	100
+機率	ji lv	100
+庫欣氏症候群	ku xin shi zheng hou qun	100
+康乃狄克	kang nai di ke	100
+康乃狄克州	kang nai di ke zhou	100
+載入程式	zai ru cheng shi	100
+維吉尼亞	wei ji ni ya	100
+維吉尼亞州	wei ji ni ya zhou	100
+法蘭西絲·麥朵曼	fa lan xi si mai duo man	100
+嬌生公司	jiao sheng gong si	100
+彙編	hui bian	100
+組譯	zu yi	100
+組譯器	zu yi qi	100
+組合語言	zu he yu yan	100
+彩色超音波	cai se chao yin bo	100
+彼得·傑克森	bi de jie ke sen	100
+字尾	zi wei	100
+迴圈	hui quan	100
+循環	xun huan	100
+德布西	de bu xi	100
+德弗札克	de fu zha ke	100
+心房撲動	xin fang pu dong	100
+心房顫動	xin fang chan dong	100
+心肌梗塞	xin ji geng se	100
+快閃記憶體	kuai shan ji yi ti	100
+急性呼吸窘迫症候群	ji xing hu xi jiong po zheng hou qun	100
+價效比	jia xiao bi	100
+效能	xiao neng	100
+義大利	yi da li	100
+慢性疲勞症候群	man xing pi lao zheng hou qun	100
+E型肝炎	E xing gan yan	100
+E肝	E gan	100
+戒斷症候群	jie duan zheng hou qun	100
+擷取	xie qu	100
+截圖	jie tu	100
+戴流士	dai liu shi	100
+索羅門群島	suo luo men qun dao	100
+列印	lie yin	100
+印表機	yin biao ji	100
+開啟	kai qi	100
+打開	da kai	100
+批次	pi ci	100
+憂鬱症	you yu zheng	100
+拉羅	la luo	100
+拉摩	la mo	100
+拉赫曼尼諾夫	la he man ni nuo fu	100
+丟擲	diu zhi	100
+複製	fu zhi	100
+永續性	yong xu xing	100
+指標	zhi biao	100
+摺積	zhe ji	100
+掃描器	sao miao qi	100
+結束通話	jie shu tong hua	100
+取樣	qu yang	100
+取樣率	qu yang lv	100
+介面	jie mian	100
+控制元件	kong zhi yuan jian	100
+外掛	wai gua	100
+搜尋	sou xun	100
+摩爾線程	mo er xian cheng	100
+運算元	yun suan yuan	100
+運算子	yun suan zi	100
+作業系統	zuo ye xi tong	100
+擴充套件	kuo chong tao jian	100
+副檔名	fu dang ming	100
+支援	zhi yuan	100
+支持者	zhi chi zhe	100
+數字	shu zi	100
+數位	shu wei	100
+數位人文	shu wei ren wen	100
+數位印刷	shu wei yin shua	100
+數位電子	shu wei dian zi	100
+數位電路	shu wei dian lu	100
+資料	zi liao	100
+數據	shu ju	100
+資料倉儲	zi liao cang chu	100
+資料包	zi liao bao	100
+資料庫	zi liao ku	100
+資料探勘	zi liao tan kan	100
+資料來源	zi liao lai yuan	100
+陣列	zhen lie	100
+檔案	dang an	100
+檔名	dang ming	100
+資料夾	zi liao jia	100
+文書處理	wen shu chu li	100
+文件	wen jian	100
+汶萊	wen lai	100
+史克里亞賓	shi ke li ya bin	100
+史卡拉第	shi ka la di	100
+史瓦濟蘭	shi wa ji lan	100
+斯洛維尼亞	si luo wei ni ya	100
+史特拉汶斯基	shi te la wen si ji	100
+史麥塔納	shi mai ta na	100
+史蒂芬·史匹柏	shi di fen shi pi bai	100
+紐澤西	niu ze xi	100
+紐澤西州	niu ze xi zhou	100
+新罕布夏	xin han bu xia	100
+新罕布夏州	xin han bu xia zhou	100
+紐西蘭	niu xi lan	100
+泡麵	pao mian	100
+速食麵	su shi mian	100
+方程式	fang cheng shi	100
+史托克豪森	shi tuo ke hao sen	100
+史特勞斯	shi te lao si	100
+對映	dui ying	100
+分時多重進接	fen shi duo zhong jin jie	100
+分時多工	fen shi duo gong	100
+時脈頻率	shi mai pin lv	100
+普羅高菲夫	pu luo gao fei fu	100
+閘流體	zha liu ti	100
+電晶體	dian jing ti	100
+智慧	zhi hui	100
+終端使用者	zhong duan shi yong zhe	100
+有失真壓縮	you shi zhen ya suo	100
+伺服器	si fu qi	100
+朗·霍華	lang huo hua	100
+班·艾佛列克	ban ai fu lie ke	100
+原生代碼	yuan sheng dai ma	100
+解構函式	jie gou han shi	100
+解構子	jie gou zi	100
+列舉	lie ju	100
+白遼士	bai liao shi	100
+查詢	cha xun	100
+檢視	jian shi	100
+蓋希文	gai xi wen	100
+葛拉斯	ge la si	100
+葛令卡	ge ling ka	100
+格瑞那達	ge rui na da	100
+葛利格	ge li ge	100
+喬治亞共和國	qiao zhi ya gong he guo	100
+桌上型	zhuo shang xing	100
+梅爾·吉勃遜	mei er ji bo xun	100
+梅湘	mei xiang	100
+榴槤	liu lian	100
+建構函式	jian gou han shi	100
+建構子	jian gou zi	100
+識別符號	shi bie fu hao	100
+模組	mo zu	100
+類比	lei bi	100
+類比電子	lei bi dian zi	100
+類比電路	lei bi dian lu	100
+許可權	xu ke quan	100
+興德密特	xing de mi te	100
+尤拉	you la	100
+萊雅	lai ya	100
+萊雅集團	lai ya ji tuan	100
+正規表示式	zheng gui biao shi shi	100
+正當程序	zheng dang cheng xu	100
+正子	zheng zi	100
+正子斷層造影	zheng zi duan ceng zao ying	100
+宕機	dang ji	100
+防毒	fang du	100
+位元	wei yuan	100
+比特幣	bi te bi	100
+位元率	wei yuan lv	100
+茅利塔尼亞	mao li ta ni ya	100
+模里西斯	mo li xi si	100
+胺基酸	an ji suan	100
+安比西林	an bi xi lin	100
+華倫·比提	hua lun bi ti	100
+佛漢·威廉斯	fu han wei lian si	100
+華爾頓	hua er dun	100
+沙烏地阿拉伯	sha wu di a la bo	100
+沙烏地阿美	sha wu di a mei	100
+沙烏地阿美公司	sha wu di a mei gong si	100
+波長分波多工	bo zhang fen bo duo gong	100
+波士尼亞赫塞哥維納	bo shi ni ya he sai ge wei na	100
+辛巴威	xin ba wei	100
+宏都拉斯	hong dou la si	100
+海內存知己	hai nei cun zhi ji	100
+海飛茲	hai fei zi	100
+訊息	xun xi	100
+消息	xiao xi	100
+冷盤	leng pan	100
+新增	xin zeng	100
+原始檔	yuan shi dang	100
+溢位	yi wei	100
+那杜	na du	100
+捲軸	juan zhou	100
+簡報	jian bao	100
+演算法	yan suan fa	100
+漢他病毒	han ta bing du	100
+潘德列茲基	pan de lie zi ji	100
+雷射	lei she	100
+啟用	qi yong	100
+烏茲別克	wu zi bie ke	100
+無失真壓縮	wu shi zhen ya suo	100
+實體記憶體	shi ti ji yi ti	100
+實體地址	shi ti di zhi	100
+德拉瓦	de la wa	100
+德拉瓦州	de la wa zhou	100
+千里達及托巴哥	qian li da ji tuo ba ge	100
+狀態列	zhuang tai lie	100
+後天免疫缺乏症候群	hou tian mian yi que fa zheng hou qun	100
+普賽爾	pu sai er	100
+諾魯	nuo lu	100
+萬那杜	wan na du	100
+華格納	hua ge na	100
+甘胺酸	gan an suan	100
+使用者	shi yong zhe	100
+使用者名稱	shi yong zhe ming cheng	100
+A型肝炎	A xing gan yan	100
+甲硫胺酸	jia liu an suan	100
+A肝	A gan	100
+異白胺酸	yi bai an suan	100
+異亮胺酸	yi liang an suan	100
+非同步	fei tong bu	100
+失智症	shi zhi zheng	100
+登入	deng ru	100
+釋出	shi chu	100
+傳送	chuan song	100
+白血球	bai xue qiu	100
+碟片	die pian	100
+磁碟機代號	ci die ji dai hao	100
+盧安達	lu an da	100
+目的碼	mu di ma	100
+睡眠呼吸中止症	shui mian hu xi zhong zhi zheng	100
+向量	xiang liang	100
+智慧財產權	zhi hui cai chan quan	100
+簡訊	jian xun	100
+砈	e	100
+矽	xi	100
+硬體	ying ti	100
+硬碟	ying die	100
+分碼多重進接	fen ma duo zhong jin jie	100
+位元速率	wei yuan su lv	100
+磁碟	ci die	100
+磁軌	ci gui	100
+社群	she qun	100
+社區	she qu	100
+停用	ting yong	100
+佛瑞	fu rui	100
+柯恩兄弟	ke en xiong di	100
+葛摩	ge mo	100
+柯普蘭	ke pu lan	100
+象牙海岸	xiang ya hai an	100
+柯雷利	ke lei li	100
+行動數據	xing dong shu ju	100
+行動硬碟	xing dong ying die	100
+行動網路	xing dong wang lu	100
+行動通訊	xing dong tong xun	100
+行動電話	xing dong dian hua	100
+程式	cheng shi	100
+程序不正義	cheng xu bu zheng yi	100
+程式設計師	cheng shi she ji shi	100
+程序正義	cheng xu zheng yi	100
+麩醯胺酸	fu xi an suan	100
+穀氨醯胺	gu an xi an	100
+麩胺酸	fu an suan	100
+穀胺酸	gu an suan	100
+穆索斯基	mu suo si ji	100
+分空間多重進接	fen kong jian duo zhong jin jie	100
+空間多工	kong jian duo gong	100
+空氣清淨機	kong qi qing jing ji	100
+突尼西亞	tu ni xi ya	100
+視窗	shi chuang	100
+埠	bu	100
+筆記型電腦	bi ji xing dian nao	100
+範式	fan shi	100
+正規化	zheng gui hua	100
+珍·康萍	zhen kang ping	100
+米歇爾·哈札納維西斯	mi xie er ha zha na wei xi si	100
+貼上	tie shang	100
+粘貼	zhan tie	100
+精胺酸	jing an suan	100
+約瑟夫·孟威茲	yue se fu meng wei zi	100
+傷心小棧	shang xin xiao zhan	100
+紅血球	hong xue qiu	100
+奈米	nai mi	100
+納米比亞	na mi bi ya	100
+索馬利亞	suo ma li ya	100
+元件	yuan jian	100
+組胺酸	zu an suan	100
+絲胺酸	si an suan	100
+繫結	xi jie	100
+綁架丁丁當	bang jia ding ding dang	100
+經前症候群	jing qian zheng hou qun	100
+韋瓦第	wei wa di	100
+網路上的芳鄰	wang lu shang de fang lin	100
+網絡卡	wang luo ka	100
+網咖	wang ka	100
+網路	wang lu	100
+閘道器	zha dao qi	100
+執行緒	zhi xing xu	100
+程式設計	cheng shi she ji	100
+程式語言	cheng shi yu yan	100
+快取	kuai qu	100
+縮圖	suo tu	100
+縮排	suo pai	100
+匯流排	hui liu pai	100
+纈胺酸	xie an suan	100
+預設	yu she	100
+勞勃·懷斯	lao bo huai si	100
+勞勃·班頓	lao bo ban dun	100
+羅勃·辛密克斯	luo bo xin mi ke si	100
+勞勃·瑞福	lao bo rui fu	100
+羅德島	luo de dao	100
+羅德島州	luo de dao zhou	100
+美屬維京群島	mei shu wei jing qun dao	100
+老年失智症	lao nian shi zhi zheng	100
+寮國	liao guo	100
+寮人民民主共和國	liao ren min min zhu gong he guo	100
+聖克里斯多福及尼維斯	sheng ke li si duo fu ji ni wei si	100
+聖文森及格瑞那丁	sheng wen sen ji ge rui na ding	100
+聖露西亞	sheng lu xi ya	100
+聖馬利諾	sheng ma li nuo	100
+聯絡	lian luo	100
+通話記錄	tong hua ji lu	100
+音效卡	yin xiao ka	100
+宣告	xuan gao	100
+西恩·貝克	xi en bei ke	100
+蕭士塔高維契	xiao shi ta gao wei qi	100
+蕭邦	xiao bang	100
+肯亞	ken ya	100
+胰臟	yi zang	100
+胱胺酸	guang an suan	100
+離線	li xian	100
+脯胺酸	pu an suan	100
+腎病症候群	shen bing zheng hou qun	100
+腕隧道症候群	wan sui dao zheng hou qun	100
+腦梗塞	nao geng se	100
+指令碼	zhi ling ma	100
+大腸激躁症	da chang ji zao zheng	100
+自動旋轉螢幕	zi dong xuan zhuan ying mu	100
+腳踏車	jiao ta che	100
+桌上型電腦	zhuo shang xing dian nao	100
+台積公司	tai ji gong si	100
+台積電	tai ji dian	100
+太空梭	tai kong suo	100
+色胺酸	se an suan	100
+愛荷華	ai he hua	100
+愛荷華州	ai he hua zhou	100
+愛滋病	ai zi bing	100
+愛滋病患	ai zi bing huan	100
+愛滋病毒	ai zi bing du	100
+艾瑪·湯瑪斯	ai ma tang ma si	100
+晶片	jing pian	100
+破圖	po tu	100
+苯丙胺酸	ben bing an suan	100
+輝達	hui da	100
+莫札特	mo zha te	100
+莫三比克	mo san bi ke	100
+選單	xuan dan	100
+菜單	cai dan	100
+賴索托	lai suo tuo	100
+全球資訊網	quan qiu zi xun wang	100
+永珍	yong zhen	100
+提佩特	ti pei te	100
+薩拉沙泰	sa la sha tai	100
+薩提	sa ti	100
+藍色畫面	lan se hua mian	100
+蘇胺酸	su an suan	100
+蘇利南	su li nan	100
+處理程序	chu li cheng xu	100
+虛擬函式	xu ni han shi	100
+虛擬機器	xu ni ji qi	100
+血紅素	xue hong su	100
+表示式	biao shi shi	100
+運算式	yun suan shi	100
+影印	ying yin	100
+核取按鈕	he qu an niu	100
+核取方塊	he qu fang kuai	100
+西維吉尼亞	xi wei ji ni ya	100
+西維吉尼亞州	xi wei ji ni ya zhou	100
+薛尼·波拉克	xue ni bo la ke	100
+西貝流士	xi bei liu shi	100
+影片	ying pian	100
+視訊	shi xun	100
+視訊會議	shi xun hui yi	100
+視訊通話	shi xun tong hua	100
+直譯器	zhi yi qi	100
+觸控	chu kong	100
+觸控式螢幕	chu kong shi ying mu	100
+電腦保安	dian nao bao an	100
+電腦斷層	dian nao duan ceng	100
+電腦科學	dian nao ke xue	100
+訪問	fang wen	100
+存取	cun qu	100
+裝置	zhuang zhi	100
+設定	she ding	100
+訴訟程序	su song cheng xu	100
+序號產生器	xu hao chan sheng qi	100
+登錄檔	deng lu dang	100
+登出	deng chu	100
+片語	pian yu	100
+詹姆斯·卡麥隆	zhan mu si ka mai long	100
+排程	pai cheng	100
+呼叫	hu jiao	100
+調色盤	tiao se pan	100
+調變	tiao bian	100
+數據機	shu ju ji	100
+除錯	chu cuo	100
+偵錯	zhen cuo	100
+偵錯程式	zhen cuo cheng shi	100
+諾蘭	nuo lan	100
+變數	bian shu	100
+貝里尼	bei li ni	100
+貝南	bei nan	100
+萊許	lai xu	100
+離胺酸	li an suan	100
+尚比亞	shang bi ya	100
+高空彈跳	gao kong dan tiao	100
+軟體	ruan ti	100
+軟碟機	ruan die ji	100
+軟體動物	ruan ti dong wu	100
+子音	zi yin	100
+跳脫字元	tiao tuo zi yuan	100
+通訊	tong xun	100
+通話卡	tong hua ka	100
+萬用字元	wan yong zi yuan	100
+連線	lian xian	100
+聯結器	lian jie qi	100
+進位制	jin wei zhi	100
+程序	cheng xu	100
+進程	jin cheng	100
+行程	xing cheng	100
+執行	zhi xing	100
+程序式程式設計	cheng xu shi cheng shi she ji	100
+遞迴	di hui	100
+遠端	yuan duan	100
+介面卡	jie mian ka	100
+麥克·尼可斯	mai ke ni ke si	100
+麥克·道格拉斯	mai ke dao ge la si	100
+邏輯閘	luo ji zha	100
+酪胺酸	lao an suan	100
+醯	xi	100
+林姆斯基-高沙可夫	lin mu si ji gao sha ke fu	100
+重新命名	chong xin ming ming	100
+重灌	chong guan	100
+過載	guo zai	100
+金氧半導體	jin yang ban dao ti	100
+鍅	fa	100
+鈽	bu	100
+錄影	lu ying	100
+鉳	bei	100
+鎝	da	100
+鑀	ai	100
+鋂	mei	100
+錼	nai	100
+連結	lian jie	100
+連結串列	lian jie chuan lie	100
+映象	ying xiang	100
+鉲	ka	100
+鎦	liu	100
+孟德爾頌	meng de er song	100
+入口網站	ru kou wang zhan	100
+閘電路	zha dian lu	100
+好市多	hao shi duo	100
+好市多公司	hao shi duo gong si	100
+關聯式資料庫	guan lian shi zi liao ku	100
+阻斷劑	zu duan ji	100
+阿斯匹靈	a si pi ling	100
+亞塞拜然	ya sai bai ran	100
+阿拉伯聯合大公國	a la bo lian he da gong guo	100
+阿斯特捷利康	a si te jie li kang	100
+阿斯特捷利康公司	a si te jie li kang gong si	100
+阿茲海默氏症	a zi hai mo shi zheng	100
+阿茲海默症	a zi hai mo zheng	100
+阿莫西林	a mo xi lin	100
+安莫西林	an mo xi lin	100
+愛黛兒·羅曼斯基	ai dai er luo man si ji	100
+佇列	zhu lie	100
+楊納傑克	yang na jie ke	100
+整合	zheng he	100
+積體電路	ji ti dian lu	100
+叢集	cong ji	100
+雲端儲存	yun duan chu cun	100
+雲端計算	yun duan ji suan	100
+雷諾氏症候群	lei nuo shi zheng hou qun	100
+霍洛維茲	huo luo wei zi	100
+物件導向	wu jian dao xiang	100
+程序導向	cheng xu dao xiang	100
+韋本	wei ben	100
+音訊	yin xun	100
+頁首	ye shou	100
+頁尾	ye wei	100
+專案	zhuan an	100
+前處理器	qian chu li qi	100
+標頭檔案	biao tou dang an	100
+分頻多重進接	fen pin duo zhong jin jie	100
+分頻多工	fen pin duo gong	100
+型別	xing bie	100
+類别範本	lei bie fan ben	100
+映象管	ying xiang guan	100
+顯示卡	xian shi ka	100
+視訊記憶體	shi xun ji yi ti	100
+飛航模式	fei hang mo shi	100
+資訊長	zi xun zhang	100
+執行長	zhi xing zhang	100
+技術長	ji shu zhang	100
+營運長	ying yun zhang	100
+夏農	xia nong	100
+馬丁·史柯西斯	ma ding shi ke xi si	100
+馬凡氏症候群	ma fan shi zheng hou qun	100
+馬凡氏症	ma fan shi zheng	100
+馬爾地夫	ma er di fu	100
+麻薩諸塞	ma sa zhu sai	100
+麻薩諸塞州	ma sa zhu sai zhou	100
+馬利共和國	ma li gong he guo	100
+高效能運算	gao xiao neng yun suan	100
+高畫質	gao hua zhi	100
+高階	gao jie	100
+進階	jin jie	100
+高級	gao ji	100
+進階設定	jin jie she ding	100
+進階選項	jin jie xuan xiang	100
+快取記憶體	kuai qu ji yi ti	100
+包羅定	bao luo ding	100
+駭客	hai ke	100
+預設值	yu she zhi	100
+點選	dian xuan	100
+滑鼠	hua shu	100

@@ -4,55 +4,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-
-Write-Host "Downloading OpenCC TWPhrases..."
-$text = (Invoke-WebRequest -UseBasicParsing -Uri $Source).Content
-
-$seen = [System.Collections.Generic.HashSet[string]]::new()
-$phrases = [System.Collections.Generic.List[string]]::new()
-
-foreach ($line in ($text -split "\r?\n")) {
-    if ([string]::IsNullOrWhiteSpace($line) -or $line.StartsWith("#")) {
-        continue
-    }
-
-    $parts = $line -split "`t", 2
-    if ($parts.Count -lt 2) {
-        continue
-    }
-
-    foreach ($phrase in ($parts[1].Trim() -split "\s+")) {
-        if ($phrase -and $seen.Add($phrase)) {
-            [void]$phrases.Add($phrase)
-        }
-    }
+# Install the generator dependency once: py -m pip install pypinyin==0.55.0
+& py (Join-Path $PSScriptRoot "update_tw_phrases.py") --source $Source --output $Output
+if ($LASTEXITCODE -ne 0) {
+    throw "Taiwan dictionary generation failed. Install Python and run: py -m pip install pypinyin==0.55.0"
 }
-
-$version = Get-Date -Format "yyyy-MM-dd"
-
-$header = @(
-    "# Rime dictionary",
-    "# encoding: utf-8",
-    "#",
-    "# Generated from OpenCC data/dictionary/TWPhrases.txt.",
-    "# Source: https://github.com/BYVoid/OpenCC",
-    "# Source license: Apache-2.0",
-    "#",
-    "# These are Taiwan-preferred terms as independent Rime entries.",
-    "# The source terms are intentionally NOT removed or rewritten.",
-    "",
-    "---",
-    "name: tw_phrases",
-    "version: `"$version`"",
-    "sort: by_weight",
-    "use_preset_vocabulary: false",
-    "...",
-    ""
-)
-
-$content = ($header + $phrases) -join "`n"
-$fullPath = [System.IO.Path]::GetFullPath($Output)
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($fullPath, $content + "`n", $utf8NoBom)
-
-Write-Host "Wrote $($phrases.Count) unique Taiwan terms to $fullPath"

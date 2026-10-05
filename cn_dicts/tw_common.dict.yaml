@@ -1,0 +1,66 @@
+# Rime dictionary
+# encoding: utf-8
+# Manually maintained Taiwan vocabulary supplement.
+# Independent entries with explicit Hanyu Pinyin; preserve original vocabulary.
+# Character/readings cross-checked against Rime Luna Pinyin; words curated for
+# Taiwan daily use, campus life, and electrical engineering.
+# Keep separate from generated OpenCC tw_phrases so updates cannot erase additions.
+
+---
+name: tw_common
+version: "2026-10-05"
+sort: by_weight
+use_preset_vocabulary: false
+columns: [text, code, weight]
+...
+
+吋	cun	1000
+呎	chi	1000
+妳好	ni hao	100
+妳們	ni men	100
+牠們	ta men	100
+臺鐵	tai tie	100
+手搖飲	shou yao yin	100
+身分證	shen fen zheng	100
+發票載具	fa piao zai ju	100
+網路線	wang lu xian	100
+網路分享	wang lu fen xiang	100
+硬碟機	ying die ji	100
+外接硬碟	wai jie ying die	100
+布林值	bu lin zhi	100
+螢幕截圖	ying mu jie tu	100
+系館	xi guan	100
+系辦	xi ban	100
+系學會	xi xue hui	100
+加簽	jia qian	100
+數位邏輯	shu wei luo ji	100
+訊號與系統	xun hao yu xi tong	100
+取樣頻率	qu yang pin lv	100
+妳的	ni de	100
+妳是	ni shi	100
+妳說	ni shuo	100
+妳要	ni yao	100
+妳可以	ni ke yi	100
+牠的	ta de	100
+電機系	dian ji xi	100
+電機工程	dian ji gong cheng	100
+類比電路	lei bi dian lu	100
+數位電路	shu wei dian lu	100
+運算放大器	yun suan fang da qi	100
+正反器	zheng fan qi	100
+暫存器	zan cun qi	100
+頻率響應	pin lv xiang ying	100
+電路學	dian lu xue	100
+電子學	dian zi xue	100
+電磁學	dian ci xue	100
+微積分	wei ji fen	100
+線性代數	xian xing dai shu	100
+選課系統	xuan ke xi tong	100
+課程加簽	ke cheng jia qian	100
+學分抵免	xue fen di mian	100
+筆電	bi dian	100
+行動電源	xing dong dian yuan	100
+記憶卡	ji yi ka	100
+無線網路	wu xian wang lu	100
+網路卡	wang lu ka	100
+充電線	chong dian xian	100

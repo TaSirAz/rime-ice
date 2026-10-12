@@ -23,13 +23,16 @@
 ## Windows 測試安裝
 
 先安裝 Python 3.10 或更新版。用 Plum 安裝 ai-rerank-sync-prototype 分支，
-再開 PowerShell，以下假設用戶資料夾是預設的 $env:APPDATA\Rime：
+再開 PowerShell，以下假設用戶資料夾是預設的 $env:APPDATA\Rime。
+使用目前環境的 Python（可為 Miniconda），不需要 py launcher。
+若解析到 WindowsApps 別名，將 $rimePython 改成實際 python.exe 的完整路徑：
 
 ```powershell
 $rimeUserDir = Join-Path $env:APPDATA 'Rime'
-py -m pip install -r "$rimeUserDir\tools\ai_rerank\requirements.txt"
-py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --enable-ai
-py "$rimeUserDir\tools\ai_rerank\worker.py" --bridge-dir "$rimeUserDir\ai_bridge"
+$rimePython = (Get-Command python -CommandType Application | Select-Object -First 1).Source
+& $rimePython -m pip install -r "$rimeUserDir\tools\ai_rerank\requirements.txt"
+& $rimePython "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --enable-ai
+& $rimePython "$rimeUserDir\tools\ai_rerank\worker.py" --bridge-dir "$rimeUserDir\ai_bridge"
 ```
 
 保留背景程式視窗，重新部署小狼毫。先打「代入這個」並選字上屏，
@@ -40,7 +43,7 @@ py "$rimeUserDir\tools\ai_rerank\worker.py" --bridge-dir "$rimeUserDir\ai_bridge
 停用（保留已學習字彙）：
 
 ```powershell
-py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --disable-ai
+& $rimePython "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --disable-ai
 ```
 
 重新部署。setup 修改前會備份原始 YAML，所有既有設定會保留。
@@ -55,7 +58,7 @@ py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --disable-a
 例如指定你的實際同步資料夾（請自行替換）：
 
 ```powershell
-py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --sync-dir 'D:\MyCloud\RimeSync'
+& $rimePython "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --sync-dir 'D:\MyCloud\RimeSync'
 ```
 
 1. 每臺電腦都設定同一個雲端資料夾在該臺的本機路徑。

@@ -87,3 +87,89 @@ text = run_request("今天", 8, { prefix_segment, active_segment })
 assert(text:find('"context":"今天我們達成"', 1, true), "Uncommitted prefix missing")
 io.open, os.remove, os.rename = original_open, original_remove, original_rename
 print("PASS: pre-Enter requests, composing prefix, spans and caret")
+
+-- Candidate visibility must follow this request's result, not a stale response.
+local old_open, old_remove, old_rename, old_time = io.open, os.remove, os.rename, os.time
+local old_shadow = ShadowCandidate
+local now, files = 1000, {}
+io.open = function(path, mode)
+  local name = path:match("/([^/]+)$")
+  if mode == "rb" then
+    local content = files[name]
+    if not content then return nil end
+    local lines = {}
+    for line in content:gmatch("([^\n]*)\n") do lines[#lines + 1] = line end
+    local index = 0
+    return {
+      read = function() index = index + 1; return lines[index] end,
+      close = function() end,
+    }
+  end
+  return { write = function(_, content) files[name] = content end, close = function() end }
+end
+os.remove = function() return true end
+os.rename = function() return true end
+os.time = function() return now end
+function ShadowCandidate(candidate, kind, text_value, comment)
+  return { text = text_value, type = kind, comment = comment,
+    start = candidate.start, _end = candidate._end, quality = candidate.quality }
+end
+
+local ctx = { input = "gongshi", caret_pos = 7 }
+function ctx:is_composing() return true end
+local waiting_env = {
+  ai_enabled = true, ai_auto = true, ai_wait = true, ai_dir = "mock",
+  ai_state = { id = "waiting", context = "", generation = 0, last = now },
+  engine = { context = ctx },
+}
+local function render()
+  files["focus.txt"] = "control\n" .. tostring(now) .. "\n"
+  output = {}
+  local input, state = translation(9)
+  for _, candidate in ipairs(state.candidates) do
+    candidate.start, candidate._end = 0, 7
+  end
+  module.filter.func(input, waiting_env)
+  return state
+end
+function ctx:refresh_non_confirmed_composition() render(); return true end
+render()
+assert(#output == 0 and waiting_env.ai_state.waiting, "Pending candidates must stay hidden")
+local first_id = waiting_env.ai_state.request_id
+files["response.txt"] = first_id .. "\n2,1,3,4,5,6,7,8\n"
+render()
+assert(#output == 9 and output[1].text == "candidate-2", "Ready order/tail must appear together")
+assert(output[1].comment:find("[AI]", 1, true), "Ready result should carry AI marker")
+now = now + 5
+render()
+assert(output[1].text == "candidate-2", "Resolved result must not revert on elapsed time")
+
+ctx.input, ctx.caret_pos = "gongshix", 8
+render()
+assert(#output == 0, "Old response must not reveal a new request")
+local timeout_id = waiting_env.ai_state.request_id
+files["timeout.txt"] = timeout_id .. "\n"
+render()
+assert(#output == 9 and output[1].text == "candidate-1", "Timeout must reveal original order")
+files["response.txt"] = timeout_id .. "\n2,1,3,4,5,6,7,8\n"
+render()
+assert(output[1].text == "candidate-1", "Late result must not cause another jump")
+
+ctx.input, ctx.caret_pos = "gongshiy", 8
+render()
+assert(#output == 0, "Next input should wait again")
+local enter = {
+  keycode = 0xff0d, release = function() return false end,
+  ctrl = function() return false end, shift = function() return false end,
+  alt = function() return false end, super = function() return false end,
+}
+assert(module.processor.func(enter, waiting_env) == 2, "Enter must continue to normal editor")
+assert(#output == 9 and output[1].text == "candidate-1", "Enter must restore candidates first")
+
+ctx.input = "gongshiz"
+waiting_env.ai_auto = false
+render()
+assert(#output == 9, "Manual-only mode must not hide the candidate table")
+io.open, os.remove, os.rename, os.time = old_open, old_remove, old_rename, old_time
+ShadowCandidate = old_shadow
+print("PASS: hidden pending/ready/stale/timeout/late result/Enter/manual mode")

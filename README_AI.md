@@ -173,3 +173,26 @@ Windows 原生自動刷新尚未完成實測。通知協定與結構的 Python �
 以及 `make -C others/script/ lint` 均已通過：
 https://github.com/TaSirAz/rime-ice/actions/runs/38246455338
 啟動腳本也會在本機先跑 Python 測試。Windows 候選視窗及實際模型品質仍待驗證。
+
+## 等 AI 算完才顯示候選（wait-for-ai-v7）
+
+啟動腳本預設啟用 `ai_rerank/wait_for_ai: true`。
+AI 啟用、自動刷新啟用，而且 Windows 背景通知有新鮮焦點心跳時，
+Lua 先送請求，等待期間暫不輸出候選，符合本次請求的排序完成後才一次顯示整張表。
+持續打字會改送新請求；舊結果不會顯示在新輸入。
+
+等待期間先按空白、Enter 或數字 1–9，會先恢復原候選再交給一般選字處理。
+通知執行緒不受模型推論阻塞，約 2 秒未收到結果會通知恢復原候選。
+逾時或使用者提前選字後，同一請求的晚到結果不再改動排序，避免二次跳動。
+背景程式未 Ready／心跳過期、手動刷新模式或不支援的平台不隱藏候選。
+若背景程式突然退出或 Windows 通知失敗，下一次按鍵／刷新可恢復；
+Ctrl+Shift+R 也可備用。原生小狼毫 UI 與快速選字仍需在 Windows 實測。
+
+目前採用「等待時不輸出候選」，而非小狼毫 UI 的動態隱藏開關。
+若需恢復先顯示原候選的模式，只在 rime_ice.custom.yaml 設定
+`ai_rerank/wait_for_ai: false` 並重新部署即可，AI 排序仍保留；
+再次執行 start_worker.ps1／--enable-ai 會重新啟用等待模式。
+
+更新整個分支後執行 start_worker.ps1，等 Ready，再重新部署。
+診斷：status.log 中 waiting_hidden 後應有 result_applied，或 wait_timeout_received／wait_user_selection。
+通知狀態中的 wait_timeout 表示逾時恢復。

@@ -27,6 +27,7 @@ def configure(user_dir, enable=False, disable=False, sync_dir=None):
             p["ai_rerank/bridge_dir"] = str(bridge)
             if enable:
                 p["ai_rerank/auto_refresh"] = True
+                p["ai_rerank/wait_for_ai"] = True
                 for key, value in [("engine/processors/@before 0", "lua_processor@*ai_rerank*processor"),
                                    ("engine/filters/+", "lua_filter@*ai_rerank*filter")]:
                     if key.endswith("@before 0"):

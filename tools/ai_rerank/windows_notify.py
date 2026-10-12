@@ -42,6 +42,29 @@ def may_notify(request_id, expected_focus, actual_focus, latest_id, response_id,
                 and request_id == latest_id == response_id
                 and not modifiers_down and not expired)
 
+class WaitDeadline:
+    """Independent watchdog: inference may be busy while this thread reveals fallback."""
+    def __init__(self):
+        self.request_id = None
+        self.started = 0.0
+        self.finished = False
+
+    def expired_id(self, request, response_id, now):
+        request_id = request.get("id")
+        if not isinstance(request_id, str) or not request_id:
+            return None
+        if request_id != self.request_id:
+            self.request_id, self.started, self.finished = request_id, now, False
+        if response_id == request_id:
+            self.finished = True
+        if (self.finished or request.get("wait_for_ai") is not True
+                or request.get("auto_refresh") is not True or not request.get("focus")):
+            return None
+        if now - self.started < 2.0:
+            return None
+        self.finished = True
+        return request_id
+
 class WindowsNotifier:
     def __init__(self, directory):
         self.directory = Path(directory)
@@ -100,6 +123,7 @@ class WindowsNotifier:
 
     def run(self):
         previous, last_publish = None, 0.0
+        watchdog = WaitDeadline()
         while not self.stop.wait(0.05):
             try:
                 focus = self.focus()
@@ -110,15 +134,30 @@ class WindowsNotifier:
                                     encoding="utf-8", newline="\n")
                     os.replace(temp, self.directory / "focus.txt")
                     previous, last_publish = focus, now
+                request = json.loads((self.directory / "request.json").read_text(encoding="utf-8"))
+                try:
+                    response = (self.directory / "response.txt").read_text(encoding="utf-8").splitlines()
+                except FileNotFoundError:
+                    response = []
+                response_id = response[0] if response else None
+                expired_id = watchdog.expired_id(request, response_id, now)
+                if expired_id:
+                    temp = self.directory / "timeout.tmp"
+                    temp.write_text(expired_id + "\n", encoding="utf-8", newline="\n")
+                    os.replace(temp, self.directory / "timeout.txt")
+                    self.queue(expired_id, request.get("focus"))
+                    self.log("wait_timeout", expired_id)
                 with self.lock:
                     pending = self.pending
                 if not pending:
                     continue
                 request_id, expected_focus, deadline = pending
-                request = json.loads((self.directory / "request.json").read_text(encoding="utf-8"))
-                response = (self.directory / "response.txt").read_text(encoding="utf-8").splitlines()
-                if not response:
-                    continue
+                try:
+                    timeout_id = (self.directory / "timeout.txt").read_text(encoding="utf-8").strip()
+                except FileNotFoundError:
+                    timeout_id = None
+                if timeout_id == request_id:
+                    response_id = timeout_id
                 expired = now > deadline
                 if expired or focus != expected_focus or request.get("id") != request_id:
                     with self.lock:
@@ -129,7 +168,7 @@ class WindowsNotifier:
                 modifiers = any(self.api.GetAsyncKeyState(key) & 0x8000
                                 for key in (0x10, 0x11, 0x12, 0x5B, 0x5C))
                 if not may_notify(request_id, expected_focus, focus, request.get("id"),
-                                  response[0], modifiers, expired):
+                                  response_id, modifiers, expired):
                     continue
                 # Consume exactly once and check focus again immediately before injection.
                 with self.lock:

@@ -36,6 +36,22 @@ def configure(user_dir, enable=False, disable=False, sync_dir=None):
                         items = p.setdefault(key, [])
                         if value not in items:
                             items.append(value)
+            if disable:
+                components = {
+                    "engine/processors/@before 0": "lua_processor@*ai_rerank*processor",
+                    "engine/processors/+": "lua_processor@*ai_rerank*processor",
+                    "engine/filters/+": "lua_filter@*ai_rerank*filter",
+                }
+                for key, component in components.items():
+                    value = p.get(key)
+                    if value == component:
+                        p.pop(key)
+                    elif isinstance(value, list):
+                        remaining = [item for item in value if item != component]
+                        if remaining:
+                            p[key] = remaining
+                        else:
+                            p.pop(key)
         update_yaml(user_dir / "rime_ice.custom.yaml", patch)
     if sync_dir:
         sync_dir = sync_dir.resolve()

@@ -11,7 +11,7 @@
 - 僅比较前四個中與首選涵蓋相同拼音範圍、且文字等長的候選。原順位帶有保守偏好；
   最高調整分數比次高至少高 0.6 才提升一個候選，其餘保持原順序。
   0.6 與順位偏好是未校準的啟發式門檻，不能當作準確率或模型信心。
-- 快速輸入時等待約 150 ms 沒有新請求再計算，另加實際推論時間；不阻塞打字。
+- 快速輸入時等待約 50 ms 沒有新請求再計算，另加實際推論時間；不阻塞打字。
 - 只重排 Rime 已提供的候選，不產生新的整句或拼音解碼路徑。
   如果前四個只有一個整句而其餘是短詞，就保留原順序，無法修正整句中的同音詞。
 - Lua 用上屏通知記住最近 128 字，以本機檔案交換請求；不在 Rime 主執行緒等推論。
@@ -196,3 +196,29 @@ Ctrl+Shift+R 也可備用。原生小狼毫 UI 與快速選字仍需在 Windows 
 更新整個分支後執行 start_worker.ps1，等 Ready，再重新部署。
 診斷：status.log 中 waiting_hidden 後應有 result_applied，或 wait_timeout_received／wait_user_selection。
 通知狀態中的 wait_timeout 表示逾時恢復。
+
+## 評分延遲改善（fast-v8）
+
+固定輸入合併等待由 150 ms 縮短為 50 ms，請求輪詢由 25 ms 縮短為 10 ms，
+Windows 刷新通知輪詢由 50 ms 縮短為 20 ms。沒有至少兩個可比較候選時不等待、不推論。
+支援的 Transformers 版本只輸出差異後綴需要的位置分數，舊版也只對後綴執行 log_softmax。
+停用未使用的推論 KV cache，並在 Ready 前以固定測試字詞暖機一次。
+模型大小、前文長度、候選比較範圍與排序門檻保持原設定，未切換低精度或縮小模型。
+
+新增 test_fast_scoring.py 用 PyTorch 合成 logits 比較優化前後分數，
+涵蓋新舊 forward 參數、空前文、长前文、共同前綴與不同 token 長度填充；
+不下載真實模型。GitHub CI 安裝 CPU PyTorch 執行此測試，本機啟動脚本也會執行。
+這是分數等價與程式測試，不是實際 Qwen 模型延遲基準。
+
+重新更新分支、執行 start_worker.ps1 並等 Ready。worker.log 應有
+`Scoring: fast-v8`、實際 device、PyTorch threads 和支援的 keep_logits 參數。
+每次完成最新請求後會覆寫 ai_bridge/timing.json，只存耗時、評分數量及運算裝置，不含輸入文字：
+
+```powershell
+Get-Content "$env:APPDATA\Rime\ai_bridge\timing.json"
+```
+
+inference_ms 是候選評分呼叫耗時（快取命中可接近零）；worker_ms 是這次請求
+被背景程式觀察後到结果寫出的耗時，包含輸入合併等待。
+它不包含舊推論占用背景程式的時間，也不包含 Windows 通知或候選視窗繪製時間。
+目前無法在使用者的硬體測量，實際加速幅度需比較本機耗時與打字感受。

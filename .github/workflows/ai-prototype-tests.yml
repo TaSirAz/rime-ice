@@ -25,6 +25,7 @@ jobs:
       - name: Install test and lint dependencies
         run: |
           python -m pip install PyYAML
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           sudo apt-get update
           sudo apt-get install -y lua5.4 luarocks yamllint
           sudo luarocks install luacheck

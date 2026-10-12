@@ -124,7 +124,7 @@ class WindowsNotifier:
     def run(self):
         previous, last_publish = None, 0.0
         watchdog = WaitDeadline()
-        while not self.stop.wait(0.05):
+        while not self.stop.wait(0.02):
             try:
                 focus = self.focus()
                 now = time.monotonic()

@@ -1,6 +1,7 @@
 """Local, asynchronous candidate scoring prototype. No network during scoring."""
 import argparse
 import json
+import inspect
 import math
 import os
 import time
@@ -31,6 +32,14 @@ def stable_order(scores):
     return sorted(range(len(scores)), key=lambda i: (-scores[i], i))
 
 
+def logits_keep_parameter(model):
+    parameters = inspect.signature(model.forward).parameters
+    for name in ("logits_to_keep", "num_logits_to_keep"):
+        if name in parameters:
+            return name
+    return None
+
+
 class TransformerScorer:
     def __init__(self, model_name, local_only=False):
         import torch
@@ -41,6 +50,7 @@ class TransformerScorer:
         self.model.eval()
         if torch.cuda.is_available():
             self.model.to("cuda")
+        self.keep_parameter = logits_keep_parameter(self.model)
 
     @lru_cache(maxsize=128)
     def score(self, context, words):
@@ -64,11 +74,22 @@ class TransformerScorer:
         pad = tokenizer.eos_token_id
         ids = torch.tensor([s + [pad] * (width - len(s)) for s in sequences], device=self.model.device)
         mask = torch.tensor([[1] * len(s) + [0] * (width - len(s)) for s in sequences], device=self.model.device)
+        suffix_width = width - len(prefix)
+        # Predict only the suffix: the entire prefix's vocabulary scores are unused.
+        kwargs = {"use_cache": False}
+        if self.keep_parameter:
+            kwargs[self.keep_parameter] = suffix_width + 1
         with torch.inference_mode():
-            logits = self.model(input_ids=ids, attention_mask=mask).logits
-            values = torch.log_softmax(logits[:, :-1, :], dim=-1).gather(2, ids[:, 1:, None]).squeeze(-1)
+            logits = self.model(input_ids=ids, attention_mask=mask, **kwargs).logits
+            if self.keep_parameter:
+                logits = logits[:, :-1, :]
+            else:
+                # Older Transformers still avoids a full-prefix log_softmax.
+                logits = logits[:, len(prefix)-1:-1, :]
+            values = torch.log_softmax(logits, dim=-1).gather(
+                2, ids[:, len(prefix):, None]).squeeze(-1)
         # Normalize by characters, not tokenizer-dependent token counts.
-        return tuple(float(values[i, len(prefix)-1:len(prefix)+len(span)-1].sum().cpu()) / len(suffixes[i])
+        return tuple(float(values[i, :len(span)].sum().cpu()) / len(suffixes[i])
                      for i, span in enumerate(spans))
 
 
@@ -81,6 +102,7 @@ def serve(directory, scorer):
     notifier.start()
     print("Automatic refresh: " + ("enabled" if notifier.enabled else "unavailable on this platform"), flush=True)
     print("Ranking: sentence-v6, conservative promotion; no Enter required.", flush=True)
+    print("Scoring: fast-v8, 50ms typing delay; suffix-only logits when supported.", flush=True)
     print("Ready. Keep this window open; stop with Ctrl+C. Input text is not logged.", flush=True)
     while True:
         try:
@@ -89,18 +111,20 @@ def serve(directory, scorer):
             if request_id != last_id:
                 if request_id != pending_id:
                     pending_id, pending_since = request_id, time.monotonic()
-                # Coalesce rapid typing without blocking Rime or delaying notifications.
-                if time.monotonic() - pending_since < 0.15:
-                    time.sleep(0.025)
-                    continue
-                last_id = request_id
                 spans = request.get("spans")
                 eligible = [i for i in comparable_indices(words, spans) if i < 4]
+                # Skip the typing delay entirely if there is nothing comparable to score.
+                if len(eligible) >= 2 and time.monotonic() - pending_since < 0.05:
+                    time.sleep(0.01)
+                    continue
+                last_id = request_id
+                inference_began = time.monotonic()
                 scores = [0.0] * len(words)
                 if len(eligible) >= 2:
                     subset = tuple(words[i] for i in eligible)
                     for i, score in zip(eligible, scorer.score(context, subset)):
                         scores[i] = score
+                inference_ms = round((time.monotonic() - inference_began) * 1000, 1)
                 order = conservative_order(scores, words, spans)
                 # Discard obsolete inference results if another keystroke arrived.
                 newest = json.loads(source.read_text(encoding="utf-8"))
@@ -110,9 +134,19 @@ def serve(directory, scorer):
                     os.replace(temp, target)
                     if request.get("auto_refresh") is True:
                         notifier.queue(request_id, request.get("focus"))
+                    timing = {
+                        "version": "fast-scoring-v8",
+                        "inference_ms": inference_ms,
+                        "worker_ms": round((time.monotonic() - pending_since) * 1000, 1),
+                        "candidates_scored": len(eligible) if len(eligible) >= 2 else 0,
+                        "device": str(getattr(getattr(scorer, "model", None), "device", "unknown")),
+                    }
+                    timing_temp = directory / "timing.tmp"
+                    timing_temp.write_text(json.dumps(timing), encoding="utf-8", newline="\n")
+                    os.replace(timing_temp, directory / "timing.json")
         except (FileNotFoundError, json.JSONDecodeError, ValueError, OSError):
             pass
-        time.sleep(0.025)
+        time.sleep(0.01)
 
 
 if __name__ == "__main__":
@@ -121,4 +155,9 @@ if __name__ == "__main__":
     parser.add_argument("--model", default="Qwen/Qwen2.5-0.5B")
     parser.add_argument("--local-only", action="store_true", help="Require already downloaded model files")
     args = parser.parse_args()
-    serve(args.bridge_dir, TransformerScorer(args.model, args.local_only))
+    scorer = TransformerScorer(args.model, args.local_only)
+    print(f"Model runtime: device={scorer.model.device}, "
+          f"threads={scorer.torch.get_num_threads()}, keep_logits={scorer.keep_parameter}", flush=True)
+    print("Warming up model...", flush=True)
+    scorer.score("測試", ("公司", "公式"))
+    serve(args.bridge_dir, scorer)

@@ -2,7 +2,7 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
-local VERSION = "auto-refresh-v5"
+local VERSION = "sentence-ranking-v6"
 
 local function status(env, event, detail)
   if not env.ai_dir then return end
@@ -68,6 +68,30 @@ local function reset(s)
   s.last = os.time()
 end
 
+-- Include confirmed/selected segments that are still in the composition.
+-- Never include the active candidate itself in its own conditioning prefix.
+local function scoring_context(ctx, start, history)
+  local parts = { history }
+  if start and start > 0 then
+    local ok, segments = pcall(function()
+      return ctx.composition:toSegmentation():get_segments()
+    end)
+    if ok and segments then
+      for _, segment in ipairs(segments) do
+        if segment._end <= start
+            and (segment.status == "kSelected" or segment.status == "kConfirmed") then
+          local candidate = segment:get_selected_candidate()
+          if candidate then parts[#parts + 1] = candidate.text end
+        end
+      end
+    end
+  end
+  local text = table.concat(parts)
+  local n = utf8.len(text)
+  if n and n > 128 then text = text:sub(utf8.offset(text, n - 127)) end
+  return text
+end
+
 M.processor.init = function(env)
   get_state(env)
   status(env, "processor_loaded", "enabled=" .. tostring(env.ai_enabled))
@@ -79,7 +103,9 @@ function M.processor.func(key, env)
   -- VK_F24 notification from the local worker; never insert text.
   if env.ai_auto and key.keycode == 0xffd5 then
     if not key:release() and env.engine.context:is_composing()
-        and s.request_input == env.engine.context.input and s.request_context == s.context then
+        and s.request_input == env.engine.context.input
+        and s.request_caret == env.engine.context.caret_pos
+        and s.request_context == scoring_context(env.engine.context, s.request_start, s.context) then
       local file = env.ai_dir and io.open(env.ai_dir .. "/response.txt", "rb")
       if file then
         local id = file:read("*l")
@@ -141,11 +167,15 @@ function M.filter.func(input, env)
   end
   local s = env.ai_state
   local enabled = env.ai_enabled and env.ai_dir and #list >= 2
-      and env.engine.context.input:match("^[a-z']+$") and s.context ~= ""
+      and env.engine.context.input:match("^[a-z']+$")
   if enabled and list[1].quality and list[1].quality >= 99 then enabled = false end
   if enabled then
-    local texts = {}
-    for i, c in ipairs(list) do texts[i] = quote(c.text) end
+    local texts, spans = {}, {}
+    for i, c in ipairs(list) do
+      texts[i] = quote(c.text)
+      spans[i] = quote(tostring(c.start) .. ":" .. tostring(c._end))
+    end
+    local context = scoring_context(env.engine.context, list[1].start, s.context)
     local focus = ""
     if env.ai_auto then
       local file = io.open(env.ai_dir .. "/focus.txt", "rb")
@@ -157,19 +187,24 @@ function M.filter.func(input, env)
         end
       end
     end
-    local signature = s.context .. "\n" .. env.engine.context.input .. "\n" .. table.concat(texts, ",")
+    local signature = context .. "\n" .. env.engine.context.input .. "\n"
+      .. tostring(env.engine.context.caret_pos) .. "\n" .. table.concat(texts, ",")
+      .. "\n" .. table.concat(spans, ",")
     if signature ~= s.signature then
       s.signature = signature
       s.generation = s.generation + 1
       s.request_id = s.id .. "-" .. tostring(s.generation)
       s.request_time = os.time()
       s.request_input = env.engine.context.input
-      s.request_context = s.context
+      s.request_context = context
+      s.request_start = list[1].start
+      s.request_caret = env.engine.context.caret_pos
       local tmp = env.ai_dir .. "/request.tmp"
       local file = io.open(tmp, "wb")
       if file then
-        file:write('{"id":' .. quote(s.request_id) .. ',"context":' .. quote(s.context)
+        file:write('{"id":' .. quote(s.request_id) .. ',"context":' .. quote(context)
           .. ',"focus":' .. quote(focus) .. ',"auto_refresh":' .. tostring(env.ai_auto == true)
+          .. ',"spans":[' .. table.concat(spans, ",") .. ']'
           .. ',"candidates":[' .. table.concat(texts, ",") .. ']}')
         file:close()
         -- Windows rename cannot overwrite an existing file; remove only bridge request.

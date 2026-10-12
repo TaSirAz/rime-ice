@@ -5,7 +5,15 @@
 
 ## 已實作與限制
 
-- Python 背景程式使用 Qwen/Qwen2.5-0.5B 基礎模型，按前文條件機率評分。
+- Python 背景程式使用 Qwen/Qwen2.5-0.5B 基礎模型，以中文每字平均 log 機率評分差異後綴。
+- 不需要先按 Enter：空的已送出前文仍會送出請求。已選但未送出的前段也可作為上下文。
+  整句候選的共同前綴會當作上下文，例如「我們達成公事／我們達成共識」比較末尾差異。
+- 僅比较前四個中與首選涵蓋相同拼音範圍、且文字等長的候選。原順位帶有保守偏好；
+  最高調整分數比次高至少高 0.6 才提升一個候選，其餘保持原順序。
+  0.6 與順位偏好是未校準的啟發式門檻，不能當作準確率或模型信心。
+- 快速輸入時等待約 150 ms 沒有新請求再計算，另加實際推論時間；不阻塞打字。
+- 只重排 Rime 已提供的候選，不產生新的整句或拼音解碼路徑。
+  如果前四個只有一個整句而其餘是短詞，就保留原順序，無法修正整句中的同音詞。
 - Lua 用上屏通知記住最近 128 字，以本機檔案交換請求；不在 Rime 主執行緒等推論。
 - 新請求會讓舊結果失效；無符合請求的結果時使用原排序。
 - Windows 上模型完成後會自動通知 Rime 刷新；只在原視窗／控制項及請求仍有效時通知。
@@ -36,7 +44,7 @@ $rimePython = (Get-Command python -CommandType Application | Select-Object -Firs
 & $rimePython "$rimeUserDir\tools\ai_rerank\worker.py" --bridge-dir "$rimeUserDir\ai_bridge"
 ```
 
-保留背景程式視窗，重新部署小狼毫。先打「代入這個」並選字上屏，
+保留背景程式視窗，重新部署小狼毫。先直接輸入 womendachenggongshi，先不要按 Enter；也可先打「代入這個」並選字上屏，
 再輸入 gongshi，稍等觀察候選是否自動更新且出現 [AI]；手動刷新仍可備用。依序確認數字選字、
 組句、臺灣詞、標點及快捷鍵仍正常。停掉背景程式時應維持原排序。
 第一版沒有開機自動啟動，以免未驗證的功能影響日常輸入。
@@ -121,7 +129,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools
 ```
 
 若 Python 不在這個 Miniconda 路徑，指定實際的 python.exe。
-啟動腳本會先執行通知協定／Windows INPUT 結構測試，再啟用 AI、自動刷新，
+啟動腳本會先執行 Python 排序規則、設定、通知協定／Windows INPUT 結構測試，再啟用 AI、自動刷新，
 並僅停止相同 Python 執行檔執行的這份 worker.py，重新在背景啟動。
 其他 Python 工作不會被停止。設定修改前會備份。
 
@@ -133,7 +141,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools
 切換視窗、請求變更或通知逾時會丟棄通知。Rime 也會再核對組字輸入、前文與結果 ID。
 此檢查不等同完整 TSF 周邊文字讀取或訊息送出判定。
 
-需同步更新 lua/ai_rerank.lua、worker.py、windows_notify.py 和 setup.py。
+需同步更新整個分支，包括 lua/ai_rerank.lua、worker.py、ranking.py、windows_notify.py 和 setup.py。
 通知 helper 只記錄狀態與請求 ID，不讀取或記錄視窗文字。
 診斷：status.log 應有 auto_refresh_received、result_applied；notify_status.log
 應有 notification_sent。若出現 notification_failed，可能受 Windows 權限或應用程式限制；
@@ -143,3 +151,23 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools
 啟動腳本會在使用者端先跑可執行的 Python 相容性測試；測試成功不代表原生 UI 通知已驗證。
 
 參考：https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput
+
+## 整句排序診斷（sentence-v6）
+
+重新更新分支並執行 start_worker.ps1，重新部署。worker.log 應出現
+`Ranking: sentence-v6, conservative promotion; no Enter required.` 與 Ready。
+第一個候選旁 [AI] 表示結果已套用，也可能保留原順序；並不表示模型一定改動或判斷正確。
+
+以固定例句檢查真實模型（不讀取個人輸入，不會下載已快取以外的模型）：
+
+```powershell
+& "$env:USERPROFILE\Documents\FRS\miniconda3\python.exe" "$env:APPDATA\Rime\tools\ai_rerank\evaluate.py" --local-only
+```
+
+此診斷列出已送出／未送出前文、共識／公事及公式／公司的固定例句，
+同時包含原排序正確與錯誤的版本，報告選字及單次評分耗時。這不是代表性準確率評測。
+0.5B 基礎模型未經拼音選字訓練；保守排序只能限制錯排幅度，不能保證品質改善。
+
+本次執行環境沒有可用的 Python/Lua 執行器，無法在此直接執行 unit test、
+`make -C others/script/ lint` 或真實模型評測。新增 GitHub Actions 執行規則測試及 lint；
+啟動腳本也會在本機先跑 Python 測試。Windows 候選視窗及實際模型品質仍待驗證。

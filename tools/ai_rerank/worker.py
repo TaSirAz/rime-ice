@@ -7,6 +7,7 @@ import time
 from functools import lru_cache
 from pathlib import Path
 from windows_notify import WindowsNotifier
+from ranking import comparable_indices, conservative_order, split_shared_prefix
 
 
 def validate_request(data):
@@ -44,12 +45,18 @@ class TransformerScorer:
     @lru_cache(maxsize=128)
     def score(self, context, words):
         torch, tokenizer = self.torch, self.tokenizer
-        # Condition each candidate on exactly the same committed-text prefix.
-        prefix = tokenizer.encode(context[-128:], add_special_tokens=False)
+        # A shared sentence prefix is context even before Enter.
+        context, suffixes = split_shared_prefix(context, words)
+        prefix = tokenizer.encode(context, add_special_tokens=False)[-192:]
         if not prefix:
-            return tuple(0.0 for _ in words)
-        prefix = prefix[-192:]
-        spans = [tokenizer.encode(w, add_special_tokens=False) for w in words]
+            # Qwen has no BOS; its EOS token supplies the first-token prediction.
+            boundary = tokenizer.bos_token_id
+            if boundary is None:
+                boundary = tokenizer.eos_token_id
+            if boundary is None:
+                raise ValueError("model has no beginning-of-text token")
+            prefix = [boundary]
+        spans = [tokenizer.encode(w, add_special_tokens=False) for w in suffixes]
         if any(not s for s in spans):
             raise ValueError("empty candidate tokens")
         sequences = [prefix + span for span in spans]
@@ -60,7 +67,8 @@ class TransformerScorer:
         with torch.inference_mode():
             logits = self.model(input_ids=ids, attention_mask=mask).logits
             values = torch.log_softmax(logits[:, :-1, :], dim=-1).gather(2, ids[:, 1:, None]).squeeze(-1)
-        return tuple(float(values[i, len(prefix)-1:len(prefix)+len(span)-1].mean().cpu())
+        # Normalize by characters, not tokenizer-dependent token counts.
+        return tuple(float(values[i, len(prefix)-1:len(prefix)+len(span)-1].sum().cpu()) / len(suffixes[i])
                      for i, span in enumerate(spans))
 
 
@@ -68,17 +76,32 @@ def serve(directory, scorer):
     directory.mkdir(parents=True, exist_ok=True)
     source, target = directory / "request.json", directory / "response.txt"
     last_id = None
+    pending_id, pending_since = None, 0.0
     notifier = WindowsNotifier(directory)
     notifier.start()
     print("Automatic refresh: " + ("enabled" if notifier.enabled else "unavailable on this platform"), flush=True)
+    print("Ranking: sentence-v6, conservative promotion; no Enter required.", flush=True)
     print("Ready. Keep this window open; stop with Ctrl+C. Input text is not logged.", flush=True)
     while True:
         try:
             request = json.loads(source.read_text(encoding="utf-8"))
             request_id, context, words = validate_request(request)
             if request_id != last_id:
+                if request_id != pending_id:
+                    pending_id, pending_since = request_id, time.monotonic()
+                # Coalesce rapid typing without blocking Rime or delaying notifications.
+                if time.monotonic() - pending_since < 0.15:
+                    time.sleep(0.025)
+                    continue
                 last_id = request_id
-                order = stable_order(scorer.score(context, words))
+                spans = request.get("spans")
+                eligible = [i for i in comparable_indices(words, spans) if i < 4]
+                scores = [0.0] * len(words)
+                if len(eligible) >= 2:
+                    subset = tuple(words[i] for i in eligible)
+                    for i, score in zip(eligible, scorer.score(context, subset)):
+                        scores[i] = score
+                order = conservative_order(scores, words, spans)
                 # Discard obsolete inference results if another keystroke arrived.
                 newest = json.loads(source.read_text(encoding="utf-8"))
                 if newest.get("id") == request_id:

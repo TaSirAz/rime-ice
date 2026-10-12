@@ -8,7 +8,8 @@ $ErrorActionPreference = 'Stop'
 $workerPath = Join-Path $PSScriptRoot 'worker.py'
 $setupPath = Join-Path $PSScriptRoot 'setup.py'
 $notifyPath = Join-Path $PSScriptRoot 'windows_notify.py'
-foreach ($path in @($workerPath, $setupPath, $notifyPath)) {
+$rankingPath = Join-Path $PSScriptRoot 'ranking.py'
+foreach ($path in @($workerPath, $setupPath, $notifyPath, $rankingPath)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw 'Update all files from the ai-rerank-sync-prototype branch first.'
     }
@@ -27,9 +28,9 @@ if (-not [string]::IsNullOrWhiteSpace($PythonExe)) {
 } else {
     throw 'Python was not found. Pass -PythonExe or activate Conda.'
 }
-& $pythonCommand @pythonArgs -m unittest discover -s $PSScriptRoot -p 'test_windows_notify.py'
+& $pythonCommand @pythonArgs -m unittest discover -s $PSScriptRoot -p 'test_*.py'
 if ($LASTEXITCODE -ne 0) {
-    throw 'Automatic notification compatibility checks failed. The existing worker was not stopped.'
+    throw 'AI worker compatibility checks failed. The existing worker was not stopped.'
 }
 & $pythonCommand @pythonArgs -c 'import torch, transformers, yaml'
 if ($LASTEXITCODE -ne 0) {

@@ -79,7 +79,7 @@ def serve(directory, scorer):
                 newest = json.loads(source.read_text(encoding="utf-8"))
                 if newest.get("id") == request_id:
                     temp = directory / "response.tmp"
-                    temp.write_text(request_id + "\n" + ",".join(str(i+1) for i in order) + "\n", encoding="utf-8")
+                    temp.write_text(request_id + "\n" + ",".join(str(i+1) for i in order) + "\n", encoding="utf-8", newline="\n")
                     os.replace(temp, target)
         except (FileNotFoundError, json.JSONDecodeError, ValueError, OSError):
             pass

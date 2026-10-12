@@ -147,8 +147,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools
 應有 notification_sent。若出現 notification_failed，可能受 Windows 權限或應用程式限制；
 仍可使用手動刷新。若需要實體 F24，將 ai_rerank/auto_refresh 設為 false 並重新部署。
 
-目前執行環境離線，這次新增的自動通知測試尚未執行，也尚未完成 Windows 原生自動刷新實測。
-啟動腳本會在使用者端先跑可執行的 Python 相容性測試；測試成功不代表原生 UI 通知已驗證。
+Windows 原生自動刷新尚未完成實測。通知協定與結構的 Python 測試已在 Linux CI 通過；
+啟動腳本會在使用者端再跑相容性測試。這些測試成功不代表原生 UI 通知已驗證。
 
 參考：https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput
 
@@ -168,6 +168,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools
 同時包含原排序正確與錯誤的版本，報告選字及單次評分耗時。這不是代表性準確率評測。
 0.5B 基礎模型未經拼音選字訓練；保守排序只能限制錯排幅度，不能保證品質改善。
 
-本次執行環境沒有可用的 Python/Lua 執行器，無法在此直接執行 unit test、
-`make -C others/script/ lint` 或真實模型評測。新增 GitHub Actions 執行規則測試及 lint；
+本次本機執行環境沒有可用的 Python/Lua 執行器，改由 GitHub Actions 驗證。
+提交 `2f7e7faa8ff13e188cd3bd029ac89609e8dfe932` 的 Python 測試、Lua 請求與迭代器回歸測試，
+以及 `make -C others/script/ lint` 均已通過：
+https://github.com/TaSirAz/rime-ice/actions/runs/38246455338
 啟動腳本也會在本機先跑 Python 測試。Windows 候選視窗及實際模型品質仍待驗證。

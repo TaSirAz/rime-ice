@@ -3,7 +3,8 @@
 [CmdletBinding()]
 param(
     [string]$RimeUserDir = (Join-Path $env:APPDATA 'Rime'),
-    [string]$SyncDir
+    [string]$SyncDir,
+    [string]$PythonExe
 )
 $ErrorActionPreference = 'Stop'
 $setupPath = Join-Path $PSScriptRoot 'setup.py'
@@ -14,10 +15,15 @@ if (-not (Test-Path -LiteralPath (Join-Path $RimeUserDir 'installation.yaml') -P
     throw 'Rime installation.yaml was not found. Pass -RimeUserDir with the actual user folder.'
 }
 $pythonArgs = @()
-if (Get-Command python -CommandType Application -ErrorAction SilentlyContinue) {
-    $pythonCommand = (Get-Command python -CommandType Application).Source
+if (-not [string]::IsNullOrWhiteSpace($PythonExe)) {
+    if (-not (Test-Path -LiteralPath $PythonExe -PathType Leaf)) {
+        throw 'The specified -PythonExe does not exist.'
+    }
+    $pythonCommand = (Get-Item -LiteralPath $PythonExe).FullName
+} elseif (Get-Command python -CommandType Application -ErrorAction SilentlyContinue) {
+    $pythonCommand = (Get-Command python -CommandType Application | Select-Object -First 1).Source
 } elseif (Get-Command py -CommandType Application -ErrorAction SilentlyContinue) {
-    $pythonCommand = (Get-Command py -CommandType Application).Source
+    $pythonCommand = (Get-Command py -CommandType Application | Select-Object -First 1).Source
     $pythonArgs = @('-3')
 } else {
     throw 'Python was not found. Activate your Conda environment or install Python 3.'
@@ -28,10 +34,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 & $pythonCommand @pythonArgs -c 'import yaml'
 if ($LASTEXITCODE -ne 0) {
-    if ($pythonArgs.Count -eq 0) {
-        throw 'Install the sync dependency first: python -m pip install PyYAML'
-    }
-    throw 'Install the sync dependency first: py -3 -m pip install PyYAML'
+    throw ('Install the sync dependency in the selected environment: & "{0}" {1} -m pip install PyYAML' -f $pythonCommand, ($pythonArgs -join ' '))
 }
 if ([string]::IsNullOrWhiteSpace($SyncDir)) {
     Add-Type -AssemblyName System.Windows.Forms

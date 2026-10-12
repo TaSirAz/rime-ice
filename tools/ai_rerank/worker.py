@@ -102,7 +102,7 @@ def serve(directory, scorer):
     notifier.start()
     print("Automatic refresh: " + ("enabled" if notifier.enabled else "unavailable on this platform"), flush=True)
     print("Ranking: sentence-v6, conservative promotion; no Enter required.", flush=True)
-    print("Scoring: fast-v8, 50ms typing delay; suffix-only logits when supported.", flush=True)
+    print("Scoring: immediate-v9, no typing delay; event-driven refresh.", flush=True)
     print("Ready. Keep this window open; stop with Ctrl+C. Input text is not logged.", flush=True)
     while True:
         try:
@@ -113,10 +113,6 @@ def serve(directory, scorer):
                     pending_id, pending_since = request_id, time.monotonic()
                 spans = request.get("spans")
                 eligible = [i for i in comparable_indices(words, spans) if i < 4]
-                # Skip the typing delay entirely if there is nothing comparable to score.
-                if len(eligible) >= 2 and time.monotonic() - pending_since < 0.05:
-                    time.sleep(0.01)
-                    continue
                 last_id = request_id
                 inference_began = time.monotonic()
                 scores = [0.0] * len(words)
@@ -135,7 +131,8 @@ def serve(directory, scorer):
                     if request.get("auto_refresh") is True:
                         notifier.queue(request_id, request.get("focus"))
                     timing = {
-                        "version": "fast-scoring-v8",
+                        "version": "immediate-v9",
+                        "request_id": request_id,
                         "inference_ms": inference_ms,
                         "worker_ms": round((time.monotonic() - pending_since) * 1000, 1),
                         "candidates_scored": len(eligible) if len(eligible) >= 2 else 0,

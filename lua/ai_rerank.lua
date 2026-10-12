@@ -2,7 +2,7 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
-local VERSION = "wait-for-ai-v7"
+local VERSION = "immediate-refresh-v9"
 
 local function status(env, event, detail)
   if not env.ai_dir then return end
@@ -100,6 +100,20 @@ local function bridge_id(env, name)
   local id = file:read("*l")
   file:close()
   return id and id:gsub("\r$", "")
+end
+
+local function acknowledge(env, mode)
+  local s = env.ai_state
+  if not s.request_id or s.ack_id == s.request_id then return end
+  pcall(function()
+    local tmp = env.ai_dir .. "/applied.tmp"
+    local file = io.open(tmp, "wb")
+    if not file then return end
+    file:write(s.request_id .. "\n" .. mode .. "\n")
+    file:close()
+    os.remove(env.ai_dir .. "/applied.txt")
+    if os.rename(tmp, env.ai_dir .. "/applied.txt") then s.ack_id = s.request_id end
+  end)
 end
 
 local function refresh(ctx)
@@ -278,17 +292,19 @@ function M.filter.func(input, env)
           s.fallback_id = s.request_id
           status(env, "invalid_order", id)
         end
-      else
-        status(env, "result_mismatch", "expected=" .. tostring(s.request_id) .. " got=" .. tostring(id))
       end
     end
   end
   if enabled and wait_requested and s.request_written
       and not applied and s.fallback_id ~= s.request_id then
     s.waiting = true
-    status(env, "waiting_hidden", s.request_id)
+    if s.logged_wait_id ~= s.request_id then
+      s.logged_wait_id = s.request_id
+      status(env, "waiting_hidden", s.request_id)
+    end
     return
   end
+  if enabled then acknowledge(env, applied and "ai" or "original") end
   for _, c in ipairs(list) do yield(c) end
   for c in iterator, iterator_state do yield(c) end
 end

@@ -65,6 +65,46 @@ class WaitDeadline:
         self.finished = True
         return request_id
 
+class PipelineTiming:
+    """Observe bridge stages, not UI paint; stores only IDs and elapsed times."""
+    def __init__(self):
+        self.request_id = None
+        self.started = 0.0
+        self.ready = self.sent = self.applied = None
+        self.mode = None
+
+    def observe(self, request_id, response_id, applied_id, mode, now):
+        if not isinstance(request_id, str) or not request_id:
+            return False
+        changed = False
+        if request_id != self.request_id:
+            self.request_id, self.started = request_id, now
+            self.ready = self.sent = self.applied = None
+            self.mode = None
+            changed = True
+        if response_id == request_id and self.ready is None:
+            self.ready = now
+            changed = True
+        if applied_id == request_id and self.applied is None:
+            self.applied, self.mode = now, mode
+            changed = True
+        return changed
+
+    def notified(self, request_id, now):
+        if request_id == self.request_id:
+            self.sent = now
+
+    def snapshot(self):
+        def elapsed(value):
+            return round((value - self.started) * 1000, 1) if value is not None else None
+        return {
+            "version": "pipeline-v9", "request_id": self.request_id,
+            "response_ms": elapsed(self.ready), "notification_ms": elapsed(self.sent),
+            "applied_ms": elapsed(self.applied), "mode": self.mode,
+            "notification_to_applied_ms": round((self.applied - self.sent) * 1000, 1)
+                if self.applied is not None and self.sent is not None and self.applied >= self.sent else None,
+        }
+
 class WindowsNotifier:
     def __init__(self, directory):
         self.directory = Path(directory)
@@ -72,6 +112,7 @@ class WindowsNotifier:
         self.pending = None
         self.lock = threading.Lock()
         self.stop = threading.Event()
+        self.wake = threading.Event()
         self.thread = None
         if not self.enabled:
             return
@@ -103,6 +144,7 @@ class WindowsNotifier:
         if self.enabled and isinstance(focus, str) and focus:
             with self.lock:
                 self.pending = (request_id, focus, time.monotonic() + 1.0)
+            self.wake.set()
 
     def log(self, event, request_id=""):
         try:
@@ -118,13 +160,27 @@ class WindowsNotifier:
 
     def close(self):
         self.stop.set()
+        self.wake.set()
         if self.thread:
             self.thread.join(timeout=1)
+
+    def write_timing(self, tracker):
+        try:
+            temp = self.directory / "pipeline_timing.tmp"
+            temp.write_text(json.dumps(tracker.snapshot()), encoding="utf-8")
+            os.replace(temp, self.directory / "pipeline_timing.json")
+        except OSError:
+            pass
 
     def run(self):
         previous, last_publish = None, 0.0
         watchdog = WaitDeadline()
-        while not self.stop.wait(0.02):
+        tracker = PipelineTiming()
+        while not self.stop.is_set():
+            self.wake.wait(timeout=0.01)
+            self.wake.clear()
+            if self.stop.is_set():
+                break
             try:
                 focus = self.focus()
                 now = time.monotonic()
@@ -140,6 +196,13 @@ class WindowsNotifier:
                 except FileNotFoundError:
                     response = []
                 response_id = response[0] if response else None
+                try:
+                    ack = (self.directory / "applied.txt").read_text(encoding="utf-8").splitlines()
+                except FileNotFoundError:
+                    ack = []
+                if tracker.observe(request.get("id"), response_id, ack[0] if ack else None,
+                                   ack[1] if len(ack) > 1 else None, now):
+                    self.write_timing(tracker)
                 expired_id = watchdog.expired_id(request, response_id, now)
                 if expired_id:
                     temp = self.directory / "timeout.tmp"
@@ -183,6 +246,9 @@ class WindowsNotifier:
                 events[0].data.ki = KEYBDINPUT(0x87, 0, 0, 0, 0x52494D45)
                 events[1].data.ki = KEYBDINPUT(0x87, 0, 2, 0, 0x52494D45)
                 sent = self.api.SendInput(2, events, ctypes.sizeof(INPUT))
+                if sent == 2:
+                    tracker.notified(request_id, time.monotonic())
+                    self.write_timing(tracker)
                 self.log("notification_sent" if sent == 2 else "notification_failed", request_id)
             except (OSError, ValueError, json.JSONDecodeError):
                 # A disappearing window or an atomically replaced file is recoverable.

@@ -135,11 +135,13 @@ end
 function ctx:refresh_non_confirmed_composition() render(); return true end
 render()
 assert(#output == 0 and waiting_env.ai_state.waiting, "Pending candidates must stay hidden")
+assert(not files["applied.tmp"], "Pending result must not be acknowledged")
 local first_id = waiting_env.ai_state.request_id
 files["response.txt"] = first_id .. "\n2,1,3,4,5,6,7,8\n"
 render()
 assert(#output == 9 and output[1].text == "candidate-2", "Ready order/tail must appear together")
 assert(output[1].comment:find("[AI]", 1, true), "Ready result should carry AI marker")
+assert(files["applied.tmp"] == first_id .. "\n" .. "ai\n", "AI result acknowledgement missing")
 now = now + 5
 render()
 assert(output[1].text == "candidate-2", "Resolved result must not revert on elapsed time")
@@ -151,6 +153,7 @@ local timeout_id = waiting_env.ai_state.request_id
 files["timeout.txt"] = timeout_id .. "\n"
 render()
 assert(#output == 9 and output[1].text == "candidate-1", "Timeout must reveal original order")
+assert(files["applied.tmp"] == timeout_id .. "\noriginal\n", "Fallback acknowledgement missing")
 files["response.txt"] = timeout_id .. "\n2,1,3,4,5,6,7,8\n"
 render()
 assert(output[1].text == "candidate-1", "Late result must not cause another jump")

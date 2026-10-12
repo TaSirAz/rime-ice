@@ -249,3 +249,25 @@ Get-Content "$env:APPDATA\Rime\ai_bridge\pipeline_timing.json"
 更新整個分支，重新執行 start_worker.ps1，等 Ready，再重新部署。
 worker.log 應有 `Scoring: immediate-v9, no typing delay; event-driven refresh.`。
 本次改善沒有使用者端端到端耗時基準，仍需用新紀錄及打字體感驗證。
+
+## CPU 執行緒自動實測（cpu-tuning-v10）
+
+背景程式啟動時，先以固定短／長前文、四個候選測試目前預設與可用的 1、2、4、8 執行緒。
+每個設定先暖機，再量三輪未經結果快取的實際模型評分，選中位數耗時最低的設定。
+最多測到 8 個替代執行緒數；原預設不論數量仍納入比較。
+測試以約 8 秒為軟預算，至少比較原預設與一個替代；單次推論不能中途取消，
+因此慢電腦可能超過此時間。這只在啟動時做，Ready 之後打字不再跑測試。
+
+只調整此背景程序的 PyTorch CPU 執行緒數；不更換模型、精度、前文範圍或排序門檻。
+CUDA 模式略過 CPU 實測。固定例句測出的最快設定不一定適合所有實際輸入，
+也不包含小狼毫候選表繪製延遲；不能保證端到端低於 50 ms。
+
+cpu_tuning.json 記錄原設定、選用執行緒數與各組固定例句中位耗時，沒有使用者輸入。
+timing.json 另增加 cpu_threads。更新整個分支，重新執行 start_worker.ps1，等 Ready 並重新部署。
+
+```powershell
+Get-Content "$env:APPDATA\Rime\ai_bridge\cpu_tuning.json"
+```
+
+回歸測試確認以實測最快設定選擇、跳過結果快取、GPU 略過、核心數限制，
+及測試例外時恢復原執行緒数。實際模型測速會在使用者電腦啟動時執行。

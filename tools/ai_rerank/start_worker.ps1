@@ -9,7 +9,8 @@ $workerPath = Join-Path $PSScriptRoot 'worker.py'
 $setupPath = Join-Path $PSScriptRoot 'setup.py'
 $notifyPath = Join-Path $PSScriptRoot 'windows_notify.py'
 $rankingPath = Join-Path $PSScriptRoot 'ranking.py'
-foreach ($path in @($workerPath, $setupPath, $notifyPath, $rankingPath)) {
+$tuningPath = Join-Path $PSScriptRoot 'cpu_tuning.py'
+foreach ($path in @($workerPath, $setupPath, $notifyPath, $rankingPath, $tuningPath)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw 'Update all files from the ai-rerank-sync-prototype branch first.'
     }

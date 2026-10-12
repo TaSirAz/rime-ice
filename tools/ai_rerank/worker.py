@@ -8,6 +8,7 @@ import time
 from functools import lru_cache
 from pathlib import Path
 from windows_notify import WindowsNotifier
+from cpu_tuning import tune_cpu_threads
 from ranking import comparable_indices, conservative_order, split_shared_prefix
 
 
@@ -130,6 +131,8 @@ def serve(directory, scorer):
                     os.replace(temp, target)
                     if request.get("auto_refresh") is True:
                         notifier.queue(request_id, request.get("focus"))
+                    runtime_threads = getattr(
+                        getattr(scorer, "torch", None), "get_num_threads", lambda: None)()
                     timing = {
                         "version": "immediate-v9",
                         "request_id": request_id,
@@ -137,6 +140,7 @@ def serve(directory, scorer):
                         "worker_ms": round((time.monotonic() - pending_since) * 1000, 1),
                         "candidates_scored": len(eligible) if len(eligible) >= 2 else 0,
                         "device": str(getattr(getattr(scorer, "model", None), "device", "unknown")),
+                        "cpu_threads": runtime_threads if isinstance(runtime_threads, int) else None,
                     }
                     timing_temp = directory / "timing.tmp"
                     timing_temp.write_text(json.dumps(timing), encoding="utf-8", newline="\n")
@@ -153,6 +157,14 @@ if __name__ == "__main__":
     parser.add_argument("--local-only", action="store_true", help="Require already downloaded model files")
     args = parser.parse_args()
     scorer = TransformerScorer(args.model, args.local_only)
+    print("Measuring CPU thread counts on fixed examples before Ready...", flush=True)
+    tuning = tune_cpu_threads(scorer)
+    args.bridge_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        (args.bridge_dir / "cpu_tuning.json").write_text(json.dumps(tuning), encoding="utf-8")
+    except OSError:
+        pass
+    print(f"CPU tuning: threads={tuning['threads']}, status={tuning['status']}", flush=True)
     print(f"Model runtime: device={scorer.model.device}, "
           f"threads={scorer.torch.get_num_threads()}, keep_logits={scorer.keep_parameter}", flush=True)
     print("Warming up model...", flush=True)

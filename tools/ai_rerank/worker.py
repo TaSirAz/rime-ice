@@ -6,6 +6,7 @@ import os
 import time
 from functools import lru_cache
 from pathlib import Path
+from windows_notify import WindowsNotifier
 
 
 def validate_request(data):
@@ -67,6 +68,9 @@ def serve(directory, scorer):
     directory.mkdir(parents=True, exist_ok=True)
     source, target = directory / "request.json", directory / "response.txt"
     last_id = None
+    notifier = WindowsNotifier(directory)
+    notifier.start()
+    print("Automatic refresh: " + ("enabled" if notifier.enabled else "unavailable on this platform"), flush=True)
     print("Ready. Keep this window open; stop with Ctrl+C. Input text is not logged.", flush=True)
     while True:
         try:
@@ -81,6 +85,8 @@ def serve(directory, scorer):
                     temp = directory / "response.tmp"
                     temp.write_text(request_id + "\n" + ",".join(str(i+1) for i in order) + "\n", encoding="utf-8", newline="\n")
                     os.replace(temp, target)
+                    if request.get("auto_refresh") is True:
+                        notifier.queue(request_id, request.get("focus"))
         except (FileNotFoundError, json.JSONDecodeError, ValueError, OSError):
             pass
         time.sleep(0.025)

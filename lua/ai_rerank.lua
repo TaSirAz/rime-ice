@@ -2,7 +2,7 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
-local VERSION = "refresh-status-v4"
+local VERSION = "auto-refresh-v5"
 
 local function status(env, event, detail)
   if not env.ai_dir then return end
@@ -47,6 +47,8 @@ local function get_state(env)
   env.ai_enabled = env.engine.schema.config:get_bool("ai_rerank/enabled") or false
   env.ai_state.enabled = env.ai_enabled
   env.ai_dir = env.engine.schema.config:get_string("ai_rerank/bridge_dir")
+  local auto = env.engine.schema.config:get_bool("ai_rerank/auto_refresh")
+  env.ai_auto = auto == nil or auto
 end
 
 local function finish(env)
@@ -74,6 +76,24 @@ M.processor.fini = finish
 function M.processor.func(key, env)
   if not env.ai_enabled then return 2 end
   local s = env.ai_state
+  -- VK_F24 notification from the local worker; never insert text.
+  if env.ai_auto and key.keycode == 0xffd5 then
+    if not key:release() and env.engine.context:is_composing()
+        and s.request_input == env.engine.context.input and s.request_context == s.context then
+      local file = env.ai_dir and io.open(env.ai_dir .. "/response.txt", "rb")
+      if file then
+        local id = file:read("*l")
+        file:close()
+        if id then id = id:gsub("\r$", "") end
+        if id == s.request_id then
+          status(env, "auto_refresh_received", id)
+          local refreshed = env.engine.context:refresh_non_confirmed_composition()
+          if not refreshed then env.engine.context:set_input(env.engine.context.input) end
+        end
+      end
+    end
+    return 1
+  end
   -- Rime repr() uses modifier bit order (Shift+Control), not config text order.
   if key:release() then return 2 end
   local ctrl_shift = key:ctrl() and key:shift() and not key:alt() and not key:super()
@@ -126,16 +146,30 @@ function M.filter.func(input, env)
   if enabled then
     local texts = {}
     for i, c in ipairs(list) do texts[i] = quote(c.text) end
+    local focus = ""
+    if env.ai_auto then
+      local file = io.open(env.ai_dir .. "/focus.txt", "rb")
+      if file then
+        local token, stamp = file:read("*l"), tonumber(file:read("*l"))
+        file:close()
+        if token and stamp and math.abs(os.time() - stamp) <= 2 then
+          focus = token:gsub("\r$", "")
+        end
+      end
+    end
     local signature = s.context .. "\n" .. env.engine.context.input .. "\n" .. table.concat(texts, ",")
     if signature ~= s.signature then
       s.signature = signature
       s.generation = s.generation + 1
       s.request_id = s.id .. "-" .. tostring(s.generation)
       s.request_time = os.time()
+      s.request_input = env.engine.context.input
+      s.request_context = s.context
       local tmp = env.ai_dir .. "/request.tmp"
       local file = io.open(tmp, "wb")
       if file then
         file:write('{"id":' .. quote(s.request_id) .. ',"context":' .. quote(s.context)
+          .. ',"focus":' .. quote(focus) .. ',"auto_refresh":' .. tostring(env.ai_auto == true)
           .. ',"candidates":[' .. table.concat(texts, ",") .. ']}')
         file:close()
         -- Windows rename cannot overwrite an existing file; remove only bridge request.

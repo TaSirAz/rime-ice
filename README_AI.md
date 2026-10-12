@@ -7,11 +7,12 @@
 
 - Python 背景程式使用 Qwen/Qwen2.5-0.5B 基礎模型，按前文條件機率評分。
 - Lua 用上屏通知記住最近 128 字，以本機檔案交換請求；不在 Rime 主執行緒等推論。
-- 新請求會讓舊結果失效；無符合請求的結果時使用原排序。結果在下一次候選更新時使用，
-  不會主動刷新畫面，所以很快選字可能還是原排序。
+- 新請求會讓舊結果失效；無符合請求的結果時使用原排序。
+- Windows 上模型完成後會自動通知 Rime 刷新；只在原視窗／控制項及請求仍有效時通知。
+  其他平台或通知失敗時仍可手動刷新。
 - 無候選時 Enter 清前文、有輸入組字時 Enter 保留；60 秒閒置清除。
 - Ctrl+Shift+BackSpace 手動清除前文。
-- 等模型完成後按 Ctrl+Shift+R 手動刷新本次候選（原型測試用）。
+- Ctrl+Shift+R 保留為備用手動刷新。成功套用時第一個候選旁有 [AI]。
 - **尚未實作 Windows TSF 周邊文字讀取、焦點追蹤、游標移動與刪字回溯。**
   Enter 在送出/換行之間仍是保守規則，切換視窗後請手動重置。
 - 尚未完成 Windows 小狼毫端到端測試、真實模型準確率或延遲測試。
@@ -36,7 +37,7 @@ $rimePython = (Get-Command python -CommandType Application | Select-Object -Firs
 ```
 
 保留背景程式視窗，重新部署小狼毫。先打「代入這個」並選字上屏，
-再輸入 gongshi，稍等並按 Ctrl+Shift+R，觀察「公式」是否前移。依序確認數字選字、
+再輸入 gongshi，稍等觀察候選是否自動更新且出現 [AI]；手動刷新仍可備用。依序確認數字選字、
 組句、臺灣詞、標點及快捷鍵仍正常。停掉背景程式時應維持原排序。
 第一版沒有開機自動啟動，以免未驗證的功能影響日常輸入。
 
@@ -110,3 +111,35 @@ $rimePython = (Get-Command python -CommandType Application | Select-Object -Firs
 
 設定腳本已寫入本分支；尚未在 Windows 的資料夾選單／Google Drive 實測。
 參考：https://support.google.com/drive/answer/13401938
+
+## Windows 自動刷新與背景啟動
+
+更新整個 ai-rerank-sync-prototype 分支後，在 PowerShell 執行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools\ai_rerank\start_worker.ps1" -PythonExe "$env:USERPROFILE\Documents\FRS\miniconda3\python.exe"
+```
+
+若 Python 不在這個 Miniconda 路徑，指定實際的 python.exe。
+啟動腳本會先執行通知協定／Windows INPUT 結構測試，再啟用 AI、自動刷新，
+並僅停止相同 Python 執行檔執行的這份 worker.py，重新在背景啟動。
+其他 Python 工作不會被停止。設定修改前會備份。
+
+看到 worker.log 裡的 Ready 後重新部署。模型完成排序後應自動更新候選並顯示 [AI]。
+不需要按 Ctrl+Shift+R。背景程式每次開機後需啟動一次，目前沒有加開機啟動。
+
+實作使用 Windows SendInput 的 F24 作為 Rime 刷新通知；AI 元件會消耗此按鍵。
+傳送前檢查來源前景視窗、PID、焦點控制項、最新請求／結果 ID，以及修飾鍵是否放開。
+切換視窗、請求變更或通知逾時會丟棄通知。Rime 也會再核對組字輸入、前文與結果 ID。
+此檢查不等同完整 TSF 周邊文字讀取或訊息送出判定。
+
+需同步更新 lua/ai_rerank.lua、worker.py、windows_notify.py 和 setup.py。
+通知 helper 只記錄狀態與請求 ID，不讀取或記錄視窗文字。
+診斷：status.log 應有 auto_refresh_received、result_applied；notify_status.log
+應有 notification_sent。若出現 notification_failed，可能受 Windows 權限或應用程式限制；
+仍可使用手動刷新。若需要實體 F24，將 ai_rerank/auto_refresh 設為 false 並重新部署。
+
+目前執行環境離線，這次新增的自動通知測試尚未執行，也尚未完成 Windows 原生自動刷新實測。
+啟動腳本會在使用者端先跑可執行的 Python 相容性測試；測試成功不代表原生 UI 通知已驗證。
+
+參考：https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendinput

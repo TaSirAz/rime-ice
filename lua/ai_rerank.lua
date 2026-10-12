@@ -87,9 +87,9 @@ M.filter.fini = finish
 function M.filter.func(input, env)
   local list = {}
   -- Bound candidate consumption: preserve the lazy iterator for remaining words.
-  local iterator = input:iter()
+  local iterator, iterator_state = input:iter()
   for _ = 1, 8 do
-    local c = iterator()
+    local c = iterator(iterator_state)
     if not c then break end
     list[#list + 1] = c
   end
@@ -135,6 +135,6 @@ function M.filter.func(input, env)
     end
   end
   for _, c in ipairs(list) do yield(c) end
-  for c in iterator do yield(c) end
+  for c in iterator, iterator_state do yield(c) end
 end
 return M

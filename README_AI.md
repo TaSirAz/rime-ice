@@ -89,12 +89,14 @@ py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --sync-dir 
 4. 在 Windows PowerShell 執行（預設 Rime 用戶路徑）：
 
    ```powershell
-   py -3 -m pip install PyYAML
+   python -m pip install PyYAML
    powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools\ai_rerank\setup_google_drive.ps1"
    ```
 
    選取 Google Drive 裡剛才的 RimeSync 資料夾。這只設定同步，
-   不會啟用 AI、下載模型或開啟背景推論。需要先安裝 Python 3（包含 py launcher）。
+   不會啟用 AI、下載模型或開啟背景推論。需要 Python 3.10 或更新版；支援 Miniconda。
+   腳本優先使用 python，只有 py 時才使用 py -3。若只有 py，安裝 PyYAML
+   時改用 py -3 -m pip install PyYAML。python 指令不能加 -3。
    若曾自訂小狼毫用戶路徑，啟動腳本時加 -RimeUserDir 指定實際資料夾。
    腳本也接受 -SyncDir 指定資料夾，以免虛擬磁碟在資料夾選單中沒有顯示。
 5. 第一臺重新部署，從小狼毫選單執行「用戶資料同步」，等 Google Drive 完成上傳。

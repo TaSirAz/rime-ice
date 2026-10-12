@@ -2,7 +2,7 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
-local VERSION = "refresh-status-v3"
+local VERSION = "refresh-status-v4"
 
 local function status(env, event, detail)
   if not env.ai_dir then return end
@@ -148,6 +148,9 @@ function M.filter.func(input, env)
     if file then
       local id, order = file:read("*l"), file:read("*l")
       file:close()
+      -- Binary mode preserves CR from Windows CRLF; strip it before ID matching.
+      if id then id = id:gsub("\r$", "") end
+      if order then order = order:gsub("\r$", "") end
       if id == s.request_id and order then
         local reordered, seen = {}, {}
         for number in order:gmatch("%d+") do

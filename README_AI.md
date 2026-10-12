@@ -72,3 +72,36 @@ py "$rimeUserDir\tools\ai_rerank\setup.py" --user-dir "$rimeUserDir" --sync-dir 
 - https://github.com/rime/home/wiki/UserGuide
 - https://huggingface.co/Qwen/Qwen2.5-0.5B
 - https://github.com/hchunhui/librime-lua/wiki/Scripting
+
+## Google Drive Desktop 快速設定（僅同步，不啟用 AI）
+
+1. 在兩臺電腦登入相同 Google 帳號。第一臺在「我的雲端硬碟」建立 RimeSync
+   資料夾；第二臺等這個資料夾同步完成。不要在「電腦」備份區各建一份。
+2. 如果使用串流模式，對 RimeSync 按右鍵，設成「可離線使用」；
+   Google Drive Desktop 保持執行。
+3. Git Bash 更新本分支：
+
+   ```bash
+   cd ~/plum
+   bash rime-install TaSirAz/rime-ice@ai-rerank-sync-prototype
+   ```
+
+4. 在 Windows PowerShell 執行（預設 Rime 用戶路徑）：
+
+   ```powershell
+   py -3 -m pip install PyYAML
+   powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools\ai_rerank\setup_google_drive.ps1"
+   ```
+
+   選取 Google Drive 裡剛才的 RimeSync 資料夾。這只設定同步，
+   不會啟用 AI、下載模型或開啟背景推論。需要先安裝 Python 3（包含 py launcher）。
+   若曾自訂小狼毫用戶路徑，啟動腳本時加 -RimeUserDir 指定實際資料夾。
+   腳本也接受 -SyncDir 指定資料夾，以免虛擬磁碟在資料夾選單中沒有顯示。
+5. 第一臺重新部署，從小狼毫選單執行「用戶資料同步」，等 Google Drive 完成上傳。
+6. 第二臺執行相同設定，選同一個雲端資料夾，等下載完成後再執行「用戶資料同步」。
+   此時應合併 rime_ice 已學習詞彙與詞頻。每臺保留原本的 installation_id。
+7. 日後要傳遞新的學習資料，仍須執行「用戶資料同步」。Google Drive 自動傳檔，
+   Rime 詞庫匯出與合併在這一版是手動觸發。
+
+設定腳本已寫入本分支；尚未在 Windows 的資料夾選單／Google Drive 實測。
+參考：https://support.google.com/drive/answer/13401938

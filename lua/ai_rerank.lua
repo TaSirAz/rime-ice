@@ -2,6 +2,19 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
+local VERSION = "refresh-status-v3"
+
+local function status(env, event, detail)
+  if not env.ai_dir then return end
+  pcall(function()
+    local path = env.ai_dir .. "/status.log"
+    local file = io.open(path, "ab")
+    if file then
+      file:write(VERSION .. "\t" .. event .. "\t" .. tostring(detail or "") .. "\n")
+      file:close()
+    end
+  end)
+end
 
 local function get_state(env)
   local ctx = env.engine.context
@@ -53,7 +66,10 @@ local function reset(s)
   s.last = os.time()
 end
 
-M.processor.init = get_state
+M.processor.init = function(env)
+  get_state(env)
+  status(env, "processor_loaded", "enabled=" .. tostring(env.ai_enabled))
+end
 M.processor.fini = finish
 function M.processor.func(key, env)
   if not env.ai_enabled then return 2 end
@@ -61,13 +77,18 @@ function M.processor.func(key, env)
   -- Rime repr() uses modifier bit order (Shift+Control), not config text order.
   if key:release() then return 2 end
   local ctrl_shift = key:ctrl() and key:shift() and not key:alt() and not key:super()
+  if ctrl_shift then status(env, "ctrl_shift_key", key:repr() .. " code=" .. tostring(key.keycode)) end
   if ctrl_shift and key.keycode == 0xff08 then
     reset(s)
     return 1
   end
   if ctrl_shift and (key.keycode == string.byte("r") or key.keycode == string.byte("R")) then
     if env.engine.context:is_composing() then
-      env.engine.context:refresh_non_confirmed_composition()
+      status(env, "refresh_received", s.request_id or "no_request")
+      local refreshed = env.engine.context:refresh_non_confirmed_composition()
+      if not refreshed then
+        env.engine.context:set_input(env.engine.context.input)
+      end
       return 1
     end
   end
@@ -84,7 +105,10 @@ local function quote(text)
   end) .. '"'
 end
 
-M.filter.init = get_state
+M.filter.init = function(env)
+  get_state(env)
+  status(env, "filter_loaded", "enabled=" .. tostring(env.ai_enabled))
+end
 M.filter.fini = finish
 function M.filter.func(input, env)
   local list = {}
@@ -116,7 +140,8 @@ function M.filter.func(input, env)
         file:close()
         -- Windows rename cannot overwrite an existing file; remove only bridge request.
         os.remove(env.ai_dir .. "/request.json")
-        os.rename(tmp, env.ai_dir .. "/request.json")
+        local renamed = os.rename(tmp, env.ai_dir .. "/request.json")
+        status(env, renamed and "request_written" or "request_write_failed", s.request_id)
       end
     end
     local file = io.open(env.ai_dir .. "/response.txt", "rb")
@@ -132,7 +157,16 @@ function M.filter.func(input, env)
             seen[i] = true
           end
         end
-        if #reordered == #list then list = reordered end
+        if #reordered == #list then
+          list = reordered
+          local first = list[1]
+          list[1] = ShadowCandidate(first, first.type, first.text, (first.comment or "") .. " [AI]")
+          status(env, "result_applied", id)
+        else
+          status(env, "invalid_order", id)
+        end
+      else
+        status(env, "result_mismatch", "expected=" .. tostring(s.request_id) .. " got=" .. tostring(id))
       end
     end
   end

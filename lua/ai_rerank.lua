@@ -58,18 +58,20 @@ M.processor.fini = finish
 function M.processor.func(key, env)
   if not env.ai_enabled then return 2 end
   local s = env.ai_state
-  local repr = key:repr()
-  if repr == "Control+Shift+BackSpace" then
+  -- Rime repr() uses modifier bit order (Shift+Control), not config text order.
+  if key:release() then return 2 end
+  local ctrl_shift = key:ctrl() and key:shift() and not key:alt() and not key:super()
+  if ctrl_shift and key.keycode == 0xff08 then
     reset(s)
     return 1
   end
-  if repr == "Control+Shift+r" or repr == "Control+Shift+R" then
+  if ctrl_shift and (key.keycode == string.byte("r") or key.keycode == string.byte("R")) then
     if env.engine.context:is_composing() then
       env.engine.context:refresh_non_confirmed_composition()
       return 1
     end
   end
-  if repr == "Return" and not env.engine.context:is_composing() then reset(s) end
+  if key.keycode == 0xff0d and not env.engine.context:is_composing() then reset(s) end
   if os.time() - s.last > 60 then reset(s) end
   return 2
 end

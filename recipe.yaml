@@ -6,6 +6,7 @@ recipe:
     完整安装、更新
 install_files: >-
   cn_dicts/*.*
+  tools/ai_rerank/*.*
   en_dicts/*.*
   opencc/*.*
   lua/*.*

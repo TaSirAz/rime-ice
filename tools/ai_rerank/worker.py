@@ -116,7 +116,7 @@ def serve(directory, scorer):
     notifier.start()
     print("Automatic refresh: " + ("enabled" if notifier.enabled else "unavailable on this platform"), flush=True)
     print("Ranking: sentence-v6, conservative promotion; no Enter required.", flush=True)
-    print("Scoring: immediate-v9, no typing delay; event-driven refresh.", flush=True)
+    print("Scoring: semantic-fast-v11, shared-prefix next-token scoring; no typing delay.", flush=True)
     print("Ready. Keep this window open; stop with Ctrl+C. Input text is not logged.", flush=True)
     while True:
         try:
@@ -147,7 +147,7 @@ def serve(directory, scorer):
                     runtime_threads = getattr(
                         getattr(scorer, "torch", None), "get_num_threads", lambda: None)()
                     timing = {
-                        "version": "immediate-v9",
+                        "version": "semantic-fast-v11",
                         "request_id": request_id,
                         "inference_ms": inference_ms,
                         "worker_ms": round((time.monotonic() - pending_since) * 1000, 1),

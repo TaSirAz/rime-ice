@@ -331,3 +331,7 @@ INFO 日誌中的 registering components from module 'grammar' 是正向證據�
 原生模型安裝入口的下載／設定測試不等同其真實候選準確率測試；
 需在使用者的 Weasel 部署後確認。建議同一篇文章以相同方式各打三次，
 記錄 CPM、修改次數與錯排例句，同時檢查 AI 修正錯詞以及把原本正確詞改錯的情況。
+
+此版 worker.log 會標示 Scoring: semantic-fast-v11；timing.json 的 version 同樣更新。
+提交 ae2d71024988143ce5a34562a55e1349e56aa2c1 的 Python、Lua 回歸與 lint 已在 GitHub CI 通過：
+https://github.com/TaSirAz/rime-ice/actions/runs/38349025179

@@ -24,10 +24,13 @@ class LegacyModel:
     def logits(self, ids):
         positions = torch.arange(ids.shape[1], dtype=torch.float32)[None, :, None]
         vocab = torch.arange(11, dtype=torch.float32)[None, None, :]
-        return (positions / 7 + ids[:, :, None] / 13) * vocab
+        # A causal toy decoder: each position depends on all earlier tokens, never future tokens.
+        state = ids.cumsum(dim=1).float()[:, :, None]
+        return (positions / 7 + state / 13) * vocab
 
     def forward(self, input_ids, attention_mask, use_cache=False):
         self.used_cache = use_cache
+        self.input_batches = input_ids.shape[0]
         self.output_positions = input_ids.shape[1]
         return SimpleNamespace(logits=self.logits(input_ids))
 
@@ -38,6 +41,7 @@ class LegacyModel:
 class ModernModel(LegacyModel):
     def forward(self, input_ids, attention_mask, use_cache=False, logits_to_keep=0):
         self.used_cache = use_cache
+        self.input_batches = input_ids.shape[0]
         logits = self.logits(input_ids)
         if logits_to_keep:
             logits = logits[:, -logits_to_keep:, :]
@@ -48,6 +52,7 @@ class ModernModel(LegacyModel):
 class TransitionalModel(LegacyModel):
     def forward(self, input_ids, attention_mask, use_cache=False, num_logits_to_keep=0):
         self.used_cache = use_cache
+        self.input_batches = input_ids.shape[0]
         logits = self.logits(input_ids)
         if num_logits_to_keep:
             logits = logits[:, -num_logits_to_keep:, :]
@@ -79,6 +84,8 @@ class FastScoringTests(unittest.TestCase):
     def test_suffix_scoring_matches_original_with_empty_long_shared_and_padded_prefixes(self):
         cases = [
             ("", ("共識", "公式")),
+            ("", ("共", "公", "式", "司")),
+            ("代入這個", ("公式", "公司")),
             ("今天我們準備把新的", ("共識", "公式")),
             ("", ("我們達成公事", "我們達成共識")),
             ("前文" * 80, ("較短", "較長的候選詞")),
@@ -94,8 +101,11 @@ class FastScoringTests(unittest.TestCase):
                     self.assertFalse(scorer.model.used_cache)
                     if scorer.keep_parameter:
                         _, suffixes = split_shared_prefix(context, words)
-                        self.assertEqual(scorer.model.output_positions,
-                                         max(map(len, suffixes)) + 1)
+                        expected_positions = 1 if all(len(s) == 1 for s in suffixes) else max(map(len, suffixes)) + 1
+                        self.assertEqual(scorer.model.output_positions, expected_positions)
+                    _, suffixes = split_shared_prefix(context, words)
+                    if all(len(s) == 1 for s in suffixes):
+                        self.assertEqual(scorer.model.input_batches, 1)
 
     def test_compatibility_parameter_detection(self):
         self.assertIsNone(logits_keep_parameter(LegacyModel()))

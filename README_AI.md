@@ -271,3 +271,63 @@ Get-Content "$env:APPDATA\Rime\ai_bridge\cpu_tuning.json"
 
 回歸測試確認以實測最快設定選擇、跳過結果快取、GPU 略過、核心數限制，
 及測試例外時恢復原執行緒数。實際模型測速會在使用者電腦啟動時執行。
+
+## 研究後的快路徑與原生選字（semantic-fast-v11）
+
+參考 Rime 原生 Octagram 與 libime 系統／個人語言模型設計，先消除無意義的等待，
+再保留 Transformer 處理真正可比较的候選：
+- Lua 先按 Python 同樣的規則檢查前四個的字長及拼音範圍。少於兩個可比較候選時立即提供原候選，
+  不寫请求、不隱藏、不走 F24 通知。
+- 單 token 差異後綴只對共同前文 forward 一次（batch=1），取各候選 next-token 機率。
+  多 token 仍走原路徑。數學評分相同，實際浮點運算可有微小差異。
+- Lua 保存最多 64 組已成功套用的順位。前文、完整有序候選文字及可比較性完全相同時直接套用，
+  不需背景計算／通知；使用目前的 Candidate 物件。逾時、人工提前選字及不完整排列不寫快取。
+- 新鮮焦點 token 改變或手動重置會清除前文及快取，避免跨視窗語境污染。
+- 快路徑保持候選一次顯示；真正的新歧義仍等待 AI。没有停用 AI。
+
+pipeline_timing.json 只量背景請求路徑；快取或不可比較的立即顯示不會更新該檔，
+因此看到舊耗時不代表目前按鍵仍在等。status.log 的 cache_hit 可辨識已完成結果快取。
+此快取是本機工作階段資料，沒有把模型猜測寫成個人詞頻或同步到雲端。
+
+### 原生詞序模型
+
+上游 Rime 支援在 decoder 產生候選時使用 Octagram 語言模型：
+https://github.com/iDvel/rime-ice/blob/main/others/recipes/grammar.recipe.yaml
+官方模型與設定：
+https://github.com/lotem/rime-octagram-data
+https://github.com/lotem/rime-octagram-data/blob/master/grammar.yaml
+libime 的系統／歷史語言模型插值：
+https://github.com/fcitx/libime/blob/master/src/libime/core/userlanguagemodel.cpp
+
+新增選用入口；使用模型 release 20260712 的
+zh-hans-t-essay-bgw-compact.gram（40,925,228 bytes，約 39 MiB）。
+下載後核對 release 的 SHA256：
+d3cb2438c1fdcd6a855dd6ca8f5c1060a29273c6b64c2c2c69af67cd71b6aa7e。
+校驗完成才修改設定；原自訂 YAML 會備份，有其他 grammar 設定時不覆盖。
+源詞典主體是簡體，故用 hans，再沿用现有 OpenCC 正體顯示。
+這不保證臺灣用語全受涵蓋，Qwen 和 Rime 使用者詞頻繼續保留。
+
+更新整個分支後，啟動時加 -NativeGrammar：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$env:APPDATA\Rime\tools\ai_rerank\start_worker.ps1" -PythonExe "$env:USERPROFILE\Documents\FRS\miniconda3\python.exe" -NativeGrammar
+```
+
+首次下載需連網，之後已驗證檔案不再下載。等 Ready 後重新部署。
+啟用 lotem 官方的 contextual_suggestions 與同音／同形候選上限，並在未自訂時設定 max_sentences=3
+（多整句需 librime >=1.17），讓更多完整候選可被比較。
+一般官方小狼毫內建 Octagram；若自行換過 rime.dll，需確認 grammar 模組。
+INFO 日誌中的 registering components from module 'grammar' 是正向證據；
+沒有日志不代表沒有插件。未確認相容性的自訂版本可先省略 -NativeGrammar，只用快路徑。
+
+### 驗證與限制
+
+新增不可比較輸入不等待、語義快取／焦點清除、無效排列拒絕，以及單 token 與原評分等價測試。
+原生 installer 測試檢查完整性失敗不改設定、已驗證檔案不重下載、保留既有 AI／使用者詞典設定。
+沒有修改詞典源文件；依 AGENTS.md，這次執行 Python/Lua 回歸與 make -C others/script/ lint。
+目前本機執行器不可用，測試由 GitHub CI 執行。
+
+單 token 與快路徑可減少已知重複工作，但不是 Windows 實機延遲或 CPM 的保證。
+原生模型安裝入口的下載／設定測試不等同其真實候選準確率測試；
+需在使用者的 Weasel 部署後確認。建議同一篇文章以相同方式各打三次，
+記錄 CPM、修改次數與錯排例句，同時檢查 AI 修正錯詞以及把原本正確詞改錯的情況。

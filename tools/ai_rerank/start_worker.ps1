@@ -2,7 +2,8 @@
 [CmdletBinding()]
 param(
     [string]$RimeUserDir = (Join-Path $env:APPDATA 'Rime'),
-    [string]$PythonExe
+    [string]$PythonExe,
+    [switch]$NativeGrammar
 )
 $ErrorActionPreference = 'Stop'
 $workerPath = Join-Path $PSScriptRoot 'worker.py'
@@ -36,6 +37,16 @@ if ($LASTEXITCODE -ne 0) {
 & $pythonCommand @pythonArgs -c 'import torch, transformers, yaml'
 if ($LASTEXITCODE -ne 0) {
     throw 'Install requirements.txt using the selected Python environment first.'
+}
+if ($NativeGrammar) {
+    $nativePath = Join-Path $PSScriptRoot 'setup_native_grammar.py'
+    if (-not (Test-Path -LiteralPath $nativePath -PathType Leaf)) {
+        throw 'Update all branch files before enabling native grammar.'
+    }
+    & $pythonCommand @pythonArgs $nativePath --user-dir $RimeUserDir
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Native grammar setup failed. The existing worker was not stopped.'
+    }
 }
 & $pythonCommand @pythonArgs $setupPath --user-dir $RimeUserDir --enable-ai
 if ($LASTEXITCODE -ne 0) {

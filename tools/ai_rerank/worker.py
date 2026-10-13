@@ -70,6 +70,19 @@ class TransformerScorer:
         spans = [tokenizer.encode(w, add_special_tokens=False) for w in suffixes]
         if any(not s for s in spans):
             raise ValueError("empty candidate tokens")
+        if all(len(span) == 1 for span in spans):
+            # All alternatives are next tokens of one identical prefix. Compute it once.
+            ids = torch.tensor([prefix], device=self.model.device)
+            mask = torch.ones_like(ids)
+            kwargs = {"use_cache": False}
+            if self.keep_parameter:
+                kwargs[self.keep_parameter] = 1
+            with torch.inference_mode():
+                logits = self.model(input_ids=ids, attention_mask=mask, **kwargs).logits[0, -1, :]
+                probabilities = torch.log_softmax(logits, dim=-1)
+                tokens = torch.tensor([span[0] for span in spans], device=self.model.device)
+                values = probabilities.gather(0, tokens).cpu().tolist()
+            return tuple(value / len(suffix) for value, suffix in zip(values, suffixes))
         sequences = [prefix + span for span in spans]
         width = max(map(len, sequences))
         pad = tokenizer.eos_token_id

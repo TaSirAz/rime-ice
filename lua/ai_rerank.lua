@@ -2,7 +2,7 @@
 local M = { processor = {}, filter = {} }
 local states = {}
 local serial = 0
-local VERSION = "immediate-refresh-v9"
+local VERSION = "semantic-fast-v11"
 
 local function status(env, event, detail)
   if not env.ai_dir then return end
@@ -67,6 +67,9 @@ local function reset(s)
   s.context = ""
   s.generation = s.generation + 1
   s.signature = nil
+  s.request_id = nil
+  s.waiting = false
+  s.result_cache, s.result_keys = {}, {}
   s.last = os.time()
 end
 
@@ -131,7 +134,7 @@ function M.processor.func(key, env)
   local s = env.ai_state
   -- VK_F24 notification from the local worker; never insert text.
   if env.ai_auto and key.keycode == 0xffd5 then
-    if not key:release() and env.engine.context:is_composing()
+    if s.request_id and not key:release() and env.engine.context:is_composing()
         and s.request_input == env.engine.context.input
         and s.request_caret == env.engine.context.caret_pos
         and s.request_context == scoring_context(env.engine.context, s.request_start, s.context) then
@@ -185,6 +188,32 @@ local function quote(text)
   end) .. '"'
 end
 
+-- Match Python's eligibility before hiding or creating a request.
+local function comparable_count(list)
+  if #list < 2 then return 0, "" end
+  local first, count, flags = list[1], 0, {}
+  local length = utf8.len(first.text)
+  for i = 1, math.min(4, #list) do
+    local c = list[i]
+    local same = length and utf8.len(c.text) == length
+      and c.start == first.start and c._end == first._end
+    flags[i] = same and "1" or "0"
+    if same then count = count + 1 end
+  end
+  return count, table.concat(flags)
+end
+
+local function remember_result(s, key, order)
+  s.result_cache, s.result_keys = s.result_cache or {}, s.result_keys or {}
+  if not s.result_cache[key] then
+    s.result_keys[#s.result_keys + 1] = key
+    if #s.result_keys > 64 then
+      s.result_cache[table.remove(s.result_keys, 1)] = nil
+    end
+  end
+  s.result_cache[key] = order
+end
+
 M.filter.init = function(env)
   get_state(env)
   status(env, "filter_loaded", "enabled=" .. tostring(env.ai_enabled))
@@ -200,11 +229,32 @@ function M.filter.func(input, env)
     list[#list + 1] = c
   end
   local s = env.ai_state
+  local focus = ""
+  if env.ai_enabled and env.ai_auto and env.ai_dir then
+    local file = io.open(env.ai_dir .. "/focus.txt", "rb")
+    if file then
+      local token, stamp = file:read("*l"), tonumber(file:read("*l"))
+      file:close()
+      if token and stamp and math.abs(os.time() - stamp) <= 2 then
+        focus = token:gsub("\r$", "")
+      end
+    end
+  end
+  if focus ~= "" then
+    if s.focus and s.focus ~= focus then reset(s) end
+    s.focus = focus
+  end
   local enabled = env.ai_enabled and env.ai_dir and #list >= 2
       and env.engine.context.input:match("^[a-z']+$")
+  local comparable, flags = comparable_count(list)
+  if comparable < 2 then enabled = false end
   if enabled and list[1].quality and list[1].quality >= 99 then enabled = false end
   s.waiting = false
-  local applied, wait_requested = false, false
+  local applied, wait_requested, cache_used = false, false, false
+  if not enabled then
+    s.request_id, s.signature = nil, nil
+    s.request_written = false
+  end
   if enabled then
     local texts, spans = {}, {}
     for i, c in ipairs(list) do
@@ -212,17 +262,9 @@ function M.filter.func(input, env)
       spans[i] = quote(tostring(c.start) .. ":" .. tostring(c._end))
     end
     local context = scoring_context(env.engine.context, list[1].start, s.context)
-    local focus = ""
-    if env.ai_auto then
-      local file = io.open(env.ai_dir .. "/focus.txt", "rb")
-      if file then
-        local token, stamp = file:read("*l"), tonumber(file:read("*l"))
-        file:close()
-        if token and stamp and math.abs(os.time() - stamp) <= 2 then
-          focus = token:gsub("\r$", "")
-        end
-      end
-    end
+    local semantic_key = context .. "\n" .. table.concat(texts, ",") .. "\n" .. flags
+    local cached = s.result_cache and s.result_cache[semantic_key]
+    if s.force_reveal then cached = nil end
     -- Hide only when the automatic-refresh thread has a fresh focus heartbeat.
     -- Manual-only mode, loading/stopped workers, and unsupported platforms stay usable.
     wait_requested = env.ai_wait == true and env.ai_auto == true and focus ~= ""
@@ -241,7 +283,7 @@ function M.filter.func(input, env)
       s.request_start = list[1].start
       s.request_caret = env.engine.context.caret_pos
       local tmp = env.ai_dir .. "/request.tmp"
-      local file = io.open(tmp, "wb")
+      local file = not cached and io.open(tmp, "wb")
       if file then
         file:write('{"id":' .. quote(s.request_id) .. ',"context":' .. quote(context)
           .. ',"focus":' .. quote(focus) .. ',"auto_refresh":' .. tostring(env.ai_auto == true)
@@ -265,29 +307,39 @@ function M.filter.func(input, env)
         or os.time() - s.request_time >= 3) then
       s.fallback_id = s.request_id
     end
-    local file = io.open(env.ai_dir .. "/response.txt", "rb")
-    if file then
-      local id, order = file:read("*l"), file:read("*l")
-      file:close()
+    local file = not cached and io.open(env.ai_dir .. "/response.txt", "rb")
+    if cached or file then
+      local id, order = s.request_id, cached
+      if file then
+        id, order = file:read("*l"), file:read("*l")
+        file:close()
+      end
       -- Binary mode preserves CR from Windows CRLF; strip it before ID matching.
       if id then id = id:gsub("\r$", "") end
       if order then order = order:gsub("\r$", "") end
       if id == s.request_id and order and s.fallback_id ~= s.request_id then
-        local reordered, seen = {}, {}
+        local reordered, seen, count = {}, {}, 0
+        local valid = not order:find("[^%d,]") and order:sub(1, 1) ~= ","
+          and order:sub(-1) ~= "," and not order:find(",,", 1, true)
         for number in order:gmatch("%d+") do
           local i = tonumber(number)
+          count = count + 1
           if list[i] and not seen[i] then
             reordered[#reordered + 1] = list[i]
             seen[i] = true
+          else
+            valid = false
           end
         end
-        if #reordered == #list then
+        if valid and count == #list and #reordered == #list then
           applied = true
+          cache_used = cached and true or false
           s.resolved_id = s.request_id
           list = reordered
           local first = list[1]
           list[1] = ShadowCandidate(first, first.type, first.text, (first.comment or "") .. " [AI]")
-          status(env, "result_applied", id)
+          if not cached then remember_result(s, semantic_key, order) end
+          status(env, cached and "cache_hit" or "result_applied", id)
         else
           s.fallback_id = s.request_id
           status(env, "invalid_order", id)
@@ -304,7 +356,8 @@ function M.filter.func(input, env)
     end
     return
   end
-  if enabled then acknowledge(env, applied and "ai" or "original") end
+  -- A cache hit has no worker request to acknowledge and needs no bridge write.
+  if enabled and not cache_used then acknowledge(env, applied and "ai" or "original") end
   for _, c in ipairs(list) do yield(c) end
   for c in iterator, iterator_state do yield(c) end
 end
